@@ -1,7 +1,8 @@
 
 import { Button, Icon } from '@chakra-ui/react';
 import React from 'react';
-import { supabase } from '../../libs/supabaseClient';
+import { useData } from '../../libs/fns';
+import { isCloudConfigured, supabase } from '../../libs/supabaseClient';
 
 
 const GoogleIcon = (props) => (
@@ -46,19 +47,23 @@ const OAuthIcons = {
 }
 
 const OAuthLoginBtn = ({ provider = 'google' }) => {
+  const { toastError } = useData();
   const available_providers = ['github', 'google', 'gitlab'];
 
-  const oAuthLogin = () => supabase.auth.signIn({ provider });
-
   if (!available_providers.includes(provider)) return null;
+  // OAuth needs a configured Supabase project — hide the buttons in local-only mode.
+  if (!isCloudConfigured) return null;
+
+  const oAuthLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({ provider });
+    if (error) toastError(error.message);
+  };
 
   return (
-    <Button onClick={oAuthLogin}
-    // bg={'transparent'}
-    >
+    <Button onClick={oAuthLogin} aria-label={`Log in with ${provider}`}>
       {OAuthIcons[provider]}
     </Button>
-  )
+  );
 };
 
 export default OAuthLoginBtn;

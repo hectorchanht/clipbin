@@ -14,87 +14,88 @@ const SwitchAccountIcon = (props) => <Icon viewBox='0 0 24 24' {...props}>
 </Icon>;
 
 export default function Auth() {
-  const { updateData, isLoading, setIsLoading, setting, setSetting, toast, toastError } = useData();
+  const { updateData, isLoading, setIsLoading, setting, setSetting, toast, toastError, user } = useData();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = React.useState(false);
 
-  const handleLogin = async () => {
+  const withAuthLoading = async (fn) => {
     setIsLoading(d => ({ ...d, auth: true }));
-
-    const cred = password.length ? { email, password } : { email };
-    const { error } = await supabase.auth.signIn(cred);
-
-    if (error) {
-      toastError(error?.message);
-    } else {
-      updateData();
+    try {
+      await fn();
+    } finally {
+      setIsLoading(d => ({ ...d, auth: false }));
     }
-    setIsLoading(d => ({ ...d, auth: false }));
-  }
+  };
 
   const clearEmailPassword = () => {
     setEmail('');
     setPassword('');
-  }
+  };
 
-  const magicLogin = async () => {
-    setIsLoading(d => ({ ...d, auth: true }));
-
-    const { data, error } = await supabase.auth.signIn({ email });
-
+  const handleLogin = () => withAuthLoading(async () => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      toastError(error?.message);
+      toastError(error.message);
+    } else {
+      updateData();
+    }
+  });
+
+  const magicLogin = () => withAuthLoading(async () => {
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) {
+      toastError(error.message);
     } else {
       toast({
-        title: 'Go check Your email!',
-        status: 'success'
-      })
+        title: 'Go check your email!',
+        description: 'Click the magic link to log in.',
+        status: 'success',
+      });
     }
-    setIsLoading(d => ({ ...d, auth: false }));
-  }
+  });
 
-  const handleSignUp = async () => {
-    setIsLoading(d => ({ ...d, auth: true }));
-
-    const { error } = await supabase.auth.signUp({ email, password });
+  const handleSignUp = () => withAuthLoading(async () => {
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) {
-      toastError(error?.message);
+      toastError(error.message);
+    } else if (!data.session) {
+      toast({
+        title: 'Check your email to confirm your account.',
+        status: 'success',
+      });
+      clearEmailPassword();
     } else {
       updateData();
-      clearEmailPassword()
+      clearEmailPassword();
     }
-    setIsLoading(d => ({ ...d, auth: false }));
-  }
+  });
 
-  const handleLogout = async () => {
-    setIsLoading(d => ({ ...d, auth: true }));
-
+  const handleLogout = () => withAuthLoading(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      toastError(error?.message);
+      toastError(error.message);
     } else {
       updateData();
-      clearEmailPassword()
+      clearEmailPassword();
     }
-    setIsLoading(d => ({ ...d, auth: false }));
-  }
+  });
+
+  const toggleAuthHidden = () => setSetting((d) => ({ ...d, isAuthHidden: !d.isAuthHidden }));
 
   if (setting?.isAuthHidden) {
     return (
-      <Button
-        colorScheme={'blue'} //  
-        onClick={() => setSetting((d) => ({ ...d, isAuthHidden: !d.isAuthHidden }))}>
-        {supabase.auth.user()?.id ? <SwitchAccountIcon /> : <AccountIcon />}
+      <Button colorScheme={'blue'} onClick={toggleAuthHidden}>
+        {user?.id ? <SwitchAccountIcon /> : <AccountIcon />}
       </Button>
-    )
+    );
   }
 
-  if (supabase.auth.user()?.id) {
+  if (user?.id) {
     return (
       <Flex justifyContent={'space-between'} my={4}>
-        <Button bg={'transparent'} onClick={() => setSetting((d) => ({ ...d, isAuthHidden: !d.isAuthHidden }))}        >
+        <Button bg={'transparent'} onClick={toggleAuthHidden}>
           <MinusIcon />
         </Button>
 
@@ -104,14 +105,16 @@ export default function Auth() {
           variant='outline'
           onClick={handleLogout}
         >
-          Logout {supabase.auth.user()?.email}
+          Logout {user.email}
         </Button>
       </Flex>
-    )
+    );
   }
 
+  const emailValid = validateEmail(email);
+
   return (
-    <Box as={'form'} mb={4}>
+    <Box as={'form'} mb={4} onSubmit={(e) => e.preventDefault()}>
       <InputGroup size='md' mb={4}>
         <Input
           autoComplete={'email'}
@@ -121,7 +124,7 @@ export default function Auth() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        {validateEmail(email) && <>
+        {emailValid && <>
           <Input
             autoComplete='current-password'
             type={show ? 'text' : 'password'}
@@ -137,11 +140,11 @@ export default function Auth() {
         </>}
       </InputGroup>
 
-      {<Flex justifyContent={'space-between'}>
-        <Button bg={'transparent'} onClick={() => setSetting((d) => ({ ...d, isAuthHidden: !d.isAuthHidden }))}     >
+      <Flex justifyContent={'space-between'}>
+        <Button bg={'transparent'} onClick={toggleAuthHidden}>
           <MinusIcon />
         </Button>
-        {!validateEmail(email) && (
+        {!emailValid && (
           <>
             <OAuthLoginBtn provider='github' />
             <OAuthLoginBtn provider='gitlab' />
@@ -149,13 +152,13 @@ export default function Auth() {
           </>
         )}
 
-        {(email.length >= 1) && validateEmail(email) && <>
+        {emailValid && <>
           <Button
             isLoading={isLoading.auth}
             colorScheme='teal'
             variant='outline'
             onClick={handleSignUp}
-            isDisabled={!validateEmail(email) || password.length < 6}
+            isDisabled={password.length < 6}
           >
             Sign Up
           </Button>
@@ -164,7 +167,6 @@ export default function Auth() {
             colorScheme='teal'
             variant='outline'
             onClick={magicLogin}
-            isDisabled={!validateEmail(email)}
           >
             Magic Login
           </Button>
@@ -173,13 +175,12 @@ export default function Auth() {
             colorScheme='teal'
             variant='outline'
             onClick={handleLogin}
-            isDisabled={!validateEmail(email) || password.length < 6}
+            isDisabled={password.length < 6}
           >
             Login
           </Button>
         </>}
-      </Flex>}
+      </Flex>
     </Box>
-  )
+  );
 }
-

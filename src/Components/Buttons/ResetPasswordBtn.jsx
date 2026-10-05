@@ -9,24 +9,31 @@ const ResetPasswordBtn = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const onClose = () => setIsOpen(false);
   const [newPassword, setNewPassword] = React.useState('');
-  const { toastError } = useData()
   const [show, setShow] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const { toastError, toastSuccess, user } = useData();
 
-  const email = supabase.auth.user()?.email;
+  const email = user?.email;
   if (!email) return null;
 
   const handleResetPassword = async () => {
-    const { error } = await supabase.auth.update({ email, password: newPassword });
-    if (error) {
-      toastError(error.message)
+    setSaving(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw new Error(error.message);
+      toastSuccess('Password updated');
+      setNewPassword('');
+      onClose();
+    } catch (e) {
+      toastError(e.message);
+    } finally {
+      setSaving(false);
     }
-    setNewPassword('');
-    onClose();
-  }
+  };
 
   return (
     <Box>
-      <Button colorScheme='yellow' onClick={() => setIsOpen(true)}>
+      <Button colorScheme='yellow' onClick={() => setIsOpen(true)} aria-label='Reset password'>
         <WarningTwoIcon />
       </Button>
 
@@ -35,7 +42,7 @@ const ResetPasswordBtn = () => {
         <ModalContent>
           <ModalHeader>Reset Password</ModalHeader>
           <ModalBody>
-            <Box as={'form'} mb={4}>
+            <Box as={'form'} mb={4} onSubmit={(e) => e.preventDefault()}>
               <InputGroup size='md' mb={4}>
                 <Input
                   autoComplete={'email'}
@@ -67,14 +74,20 @@ const ResetPasswordBtn = () => {
             <Button onClick={onClose}>
               <CloseIcon />
             </Button>
-            <Button colorScheme='red' ml={3} onClick={handleResetPassword}>
+            <Button
+              colorScheme='red'
+              ml={3}
+              onClick={handleResetPassword}
+              isLoading={saving}
+              isDisabled={newPassword.length < 6}
+            >
               <CheckIcon />
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
     </Box>
-  )
+  );
 };
 
 export default ResetPasswordBtn;

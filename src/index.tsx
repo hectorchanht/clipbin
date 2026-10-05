@@ -20,7 +20,7 @@ const WELCOME_MESSAGE = `
       ╚═════╝ ╚═╝╚═╝  ╚═══╝      
 
 
-https://github.com/hectorchanht/rushbin-clipboard-ui
+https://github.com/hectorchanht/rushbin-clipboard
 `;
 
 ReactDOM.render(

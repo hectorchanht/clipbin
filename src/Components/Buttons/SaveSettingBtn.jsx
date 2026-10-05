@@ -1,36 +1,33 @@
 import { StarIcon } from '@chakra-ui/icons';
-import { Button, useToast } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 import React from 'react';
+import { saveSettingData, useData } from '../../libs/fns';
 import { settingAtom } from '../../libs/states';
-import { supabase } from '../../libs/supabaseClient';
 
 
 const SaveSettingBtn = () => {
-  const toast = useToast();
-
   const [setting] = useAtom(settingAtom);
+  const { userId, toastError, toastSuccess } = useData();
+  const [saving, setSaving] = React.useState(false);
 
   const saveSetting = async () => {
-    const user_id = supabase.auth.user()?.id;
-    if (!user_id) {
-      localStorage.setItem("rushbin-setting", JSON.stringify(setting));
-      toast({ title: 'Setting Saved Locally', status: 'success' });
-    } else {
-      const { error, data } = await supabase.from('rushbin-setting').update({ ...setting, user_id }).eq('user_id', user_id);
-      if (error) {
-        const { error, data } = await supabase.from('rushbin-setting').insert([{ ...setting, user_id }], { upsert: true });
-        if (error) {
-          throw new Error(error.message);
-        }
-      }
-      toast({ title: 'Setting Saved In Cloud', status: 'success' });
+    setSaving(true);
+    try {
+      const where = await saveSettingData(setting, userId);
+      toastSuccess(where === 'cloud' ? 'Setting saved in cloud' : 'Setting saved locally');
+    } catch (e) {
+      toastError(e.message);
+    } finally {
+      setSaving(false);
     }
-  }
+  };
 
-  return <Button colorScheme='blue' onClick={saveSetting}>
-    <StarIcon />
-  </Button>
-}
+  return (
+    <Button colorScheme='blue' onClick={saveSetting} isLoading={saving} aria-label='Save settings'>
+      <StarIcon />
+    </Button>
+  );
+};
 
 export default SaveSettingBtn;
