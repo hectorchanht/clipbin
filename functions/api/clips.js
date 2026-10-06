@@ -1,4 +1,4 @@
-import { bad, json, requireUser } from '../../_lib.js';
+import { bad, json, requireUser } from '../_lib.js';
 
 /** GET /api/clips?page=&pageSize= — one page of the user's clips, newest first. */
 export async function onRequestGet(context) {

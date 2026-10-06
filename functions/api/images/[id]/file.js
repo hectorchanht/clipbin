@@ -1,4 +1,4 @@
-import { requireUser } from '../../../../_lib.js';
+import { requireUser } from '../../../_lib.js';
 
 /**
  * GET /api/images/:id/file — streams the image from the private R2 bucket.

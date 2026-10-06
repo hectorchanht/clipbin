@@ -1,4 +1,4 @@
-import { bad, json, randomToken, requireUser } from '../../_lib.js';
+import { bad, json, randomToken, requireUser } from '../_lib.js';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 

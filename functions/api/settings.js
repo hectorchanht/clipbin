@@ -1,4 +1,4 @@
-import { bad, json, requireUser } from '../../_lib.js';
+import { bad, json, requireUser } from '../_lib.js';
 
 const KNOWN_KEYS = ['isAuthHidden', 'isSettingHidden', 'currentPage', 'pageSize', 'isEditing'];
 

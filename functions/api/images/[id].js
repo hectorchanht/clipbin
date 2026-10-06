@@ -1,4 +1,4 @@
-import { bad, json, requireUser } from '../../../_lib.js';
+import { bad, json, requireUser } from '../../_lib.js';
 
 /** DELETE /api/images/:id — deletes the DB row and the R2 object. */
 export async function onRequestDelete(context) {

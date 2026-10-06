@@ -1,4 +1,4 @@
-import { bad, json, requireUser } from '../../../_lib.js';
+import { bad, json, requireUser } from '../../_lib.js';
 
 function validId(params) {
   const id = Number(params.id);
