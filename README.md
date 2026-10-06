@@ -2,14 +2,14 @@
 
 Your private clipboard on cloud or local — for free, forever.
 
-Paste text **or images** and save them **locally** (browser localStorage, works fully offline), or **register an account** and sync to the cloud via Supabase so you can access your clips on any device.
+Paste text **or images** and save them **locally** (browser localStorage, works fully offline), or **get a magic link by email** and sync to the Cloudflare cloud so you can access your clips on any device.
 
 ## Features
 
 - 📋 Save from clipboard (`navigator.clipboard`) or from typed text
-- 🖼️ Image support — paste, drag & drop, or upload; private per-user storage bucket in the cloud, localStorage when logged out
+- 🖼️ Image support — paste, drag & drop, or upload; private per-user R2 bucket in the cloud, localStorage when logged out
 - 💾 Local-only mode with zero setup — works offline
-- ☁️ Cloud sync with Supabase (email/password, magic link, GitHub/Google/GitLab OAuth)
+- ☁️ Cloud sync on Cloudflare (D1 + R2 + Pages Functions) — passwordless magic-link login, no passwords
 - ✏️ Edit saved entries (toggle with the green edit button in the toolbar)
 - 📄 Pagination with page-size control
 - 🌗 Dark mode by default (follows system)
@@ -23,18 +23,20 @@ npm run dev   # or: npm start
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Cloud mode (optional)
+### Cloud mode (Cloudflare)
 
-The app works out of the box with no credentials (local-only mode). To enable cloud sync:
+The app works out of the box with no credentials (local-only mode). Cloud sync runs on Cloudflare Pages Functions + D1 + R2, deployed automatically with the site:
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Copy `.env.example` to `.env` and fill in `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY`
-3. Run the migrations in `supabase/migrations/` in order in the Supabase SQL editor — they create the tables, the private image storage bucket, plus row-level-security policies so users can only read/write their own rows
-4. (Optional) Enable auth providers under Authentication → Providers: Email, Google, GitHub, GitLab. For OAuth, add your site URL to the provider's allowed callback URLs
+1. Create a D1 database and apply `d1/migrations/0001_init.sql` via the D1 dashboard console (Pages git integration does not auto-run migrations)
+2. Create a private R2 bucket
+3. In the Pages project → Settings → Functions, add bindings: D1 as `DB`, R2 as `IMAGES`
+4. In Settings → Environment variables, add secret `RESEND_API_KEY` (Resend, sending access) and optional plain var `MAGIC_LINK_FROM` (e.g. `Clipbin <login@yourdomain.com>` — the domain must be verified in Resend)
+
+Auth is passwordless: the app POSTs the email to `/api/auth/magic-link`, the Function creates a single-use 15-minute token and emails it via Resend; the SPA redeems it at `/api/auth/verify` and gets an httpOnly session cookie. Rate limits (3 per email / 10 min) are enforced in D1.
 
 ### Deploy
 
-Deploy on [Vercel](https://vercel.com) (or any static host) with `npm run build`. Set the two `REACT_APP_*` env vars in the host's dashboard to enable cloud mode in production.
+Deploy on [Cloudflare Pages](https://pages.cloudflare.com) with `npm run build` — `functions/` is picked up automatically. No client-side env vars needed.
 
 ## Packages used
 
@@ -42,7 +44,6 @@ Project bootstrapped with [Create React App](https://create-react-app.dev/) + [R
 
 - [Chakra UI](https://chakra-ui.com/) — UI components
 - [jotai](https://github.com/pmndrs/jotai) — state management
-- [@supabase/supabase-js](https://supabase.com/docs/reference/javascript/introduction) (v2) — database + auth
 - [Lodash](https://lodash.com/) — utilities
 - [react-hook-clipboard](https://github.com/apolkingg8/react-hook-clipboard) — clipboard copy/preview
 - [react-icons](https://react-icons.github.io/react-icons/) — icons
@@ -52,15 +53,22 @@ Project bootstrapped with [Create React App](https://create-react-app.dev/) + [R
 ```
 src/
   Components/        # Auth, Toolbar, ClipboardList, PaginationTool, PostFromClipboard, PostFromText
-  Components/Buttons # DeleteBtn, IsEditingBtn, OAuthLoginBtn, ResetPasswordBtn, SaveSettingBtn
+  Components/Buttons # DeleteBtn, IsEditingBtn, SaveSettingBtn
   libs/
-    fns.js           # data layer (Supabase ↔ localStorage), useData hook, useDataLoader
+    apiClient.js     # fetch client for /api/* (Cloudflare Pages Functions)
+    fns.js           # data layer (API ↔ localStorage), useData hook, useDataLoader
     states.jsx       # jotai atoms
-    supabaseClient.js# Supabase v2 client (graceful local-only mode without credentials)
-    useAuthSession.js# keeps the logged-in user in sync (incl. OAuth redirects)
+    useAuthSession.js# keeps the logged-in user in sync via /api/auth/session
     useClipboard.js  # local clipboard hook (copy + live preview)
-supabase/
-  migrations/  # 0001_init.sql (tables + RLS), 0002_images.sql (image table + private bucket), 0003_rename.sql (rushbin → clipbin)
+functions/
+  _lib.js            # shared backend helpers (auth, crypto, rate limit, Resend)
+  api/auth/          # magic-link, verify, session, logout
+  api/clips.js       # list + create (+ DELETE = full reset)
+  api/clips/[id].js  # edit + delete one
+  api/settings.js    # get + put UI settings
+  api/images*.js     # list + upload + delete + private R2 file serving
+d1/
+  migrations/0001_init.sql  # D1 schema (apply via D1 dashboard console)
 ```
 
 See [logic.md](./logic.md) for the original backend design notes.

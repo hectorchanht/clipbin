@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 import React from 'react';
-import { supabase } from '../libs/supabaseClient';
+import { api } from './apiClient';
 import {
   clipDataAtom,
   dataVersionAtom,
@@ -43,7 +43,7 @@ export const validateEmail = (email) => {
     );
 };
 
-/** Keep only the known setting keys — never persist DB columns like `id`/`created_at`,
+/** Keep only the known setting keys — never persist unknown fields,
  *  and never let a missing key wipe out its default. */
 export const pickSetting = (setting = {}) =>
   SETTING_KEYS.reduce(
@@ -76,30 +76,20 @@ const getLocalStorage = (table = tableNames.data) => {
 /**
  * Fetches one page plus a one-row lookahead so the UI knows whether
  * a next page exists (without ever showing an empty page).
+ * Logged in → Cloudflare D1 via /api; logged out (or no backend) → localStorage.
  */
 export const getData = async ({ currentPage, pageSize, userId }) => {
   const page = currentPage > 0 ? currentPage : 1;
   const size = pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE;
-  const start = (page - 1) * size;
 
   if (!userId) {
+    const start = (page - 1) * size;
     const slice = getLocalStorage(tableNames.data).slice(start, start + size + 1);
     return { items: slice.slice(0, size), hasMore: slice.length > size };
   }
 
-  const { data, error } = await supabase
-    .from('clipbin-data')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .range(start, start + size); // inclusive end => size + 1 rows
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  const rows = data ?? [];
-  return { items: rows.slice(0, size), hasMore: rows.length > size };
+  const { items, hasMore } = await api(`/clips?page=${page}&pageSize=${size}`);
+  return { items, hasMore };
 };
 
 export const postData = async (val, userId) => {
@@ -119,30 +109,19 @@ export const postData = async (val, userId) => {
 
     localStorage.setItem('clipbin-data', JSON.stringify(data));
     localStorage.setItem('clipbin-id', JSON.stringify(Number(id) + 1));
-  } else {
-    const { error } = await supabase.from('clipbin-data').insert({ val: text, user_id: userId });
-
-    if (error) {
-      throw new Error(error.message);
-    }
+    return;
   }
+
+  await api('/clips', { method: 'POST', body: { val: text } });
 };
 
 export const deleteData = async (id, userId) => {
   if (!userId) {
     const oldData = getLocalStorage(tableNames.data);
     localStorage.setItem('clipbin-data', JSON.stringify(oldData.filter((d) => d.id !== id)));
-  } else {
-    const { error } = await supabase
-      .from('clipbin-data')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', userId);
-
-    if (error) {
-      throw new Error(error.message);
-    }
+    return;
   }
+  await api(`/clips/${id}`, { method: 'DELETE' });
 };
 
 export const patchData = async ({ id, val }, userId) => {
@@ -155,37 +134,17 @@ export const patchData = async ({ id, val }, userId) => {
     const oldData = getLocalStorage(tableNames.data);
     const newData = oldData.map((d) => (d.id === id ? { ...d, val: text } : d));
     localStorage.setItem('clipbin-data', JSON.stringify(newData));
-  } else {
-    const { error } = await supabase
-      .from('clipbin-data')
-      .update({ val: text })
-      .eq('id', id)
-      .eq('user_id', userId);
-
-    if (error) {
-      throw new Error(error.message);
-    }
+    return;
   }
+  await api(`/clips/${id}`, { method: 'PATCH', body: { val: text } });
 };
 
 export const getSettingData = async (userId) => {
   if (!userId) {
     return getLocalStorage(tableNames.setting);
   }
-
-  const { data, error } = await supabase
-    .from('clipbin-setting')
-    .select('*')
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(error.message);
-  }
-  if (!data) {
-    return DEFAULT_SETTING;
-  }
-  return { ...DEFAULT_SETTING, ...pickSetting(data) };
+  const { settings } = await api('/settings');
+  return { ...DEFAULT_SETTING, ...pickSetting(settings) };
 };
 
 export const saveSettingData = async (setting, userId) => {
@@ -195,24 +154,7 @@ export const saveSettingData = async (setting, userId) => {
     localStorage.setItem('clipbin-setting', JSON.stringify(row));
     return 'local';
   }
-
-  const { data: existing, error: readError } = await supabase
-    .from('clipbin-setting')
-    .select('id')
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (readError) {
-    throw new Error(readError.message);
-  }
-
-  const { error } = existing
-    ? await supabase.from('clipbin-setting').update(row).eq('user_id', userId)
-    : await supabase.from('clipbin-setting').insert({ ...row, user_id: userId });
-
-  if (error) {
-    throw new Error(error.message);
-  }
+  await api('/settings', { method: 'PUT', body: row });
   return 'cloud';
 };
 
@@ -304,6 +246,7 @@ export const useDataLoader = () => {
       cancelled = true;
     };
     // setData/setHasMore/setIsLoading are stable jotai setters; toast is stable.
+    // userId (not the whole user object) drives refetch on login/logout.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, pageSize, dataVersion, userId]);
 };

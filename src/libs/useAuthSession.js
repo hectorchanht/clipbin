@@ -1,38 +1,36 @@
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
-import { supabase } from './supabaseClient';
+import React from 'react';
+import { api, checkBackend } from './apiClient';
 import { userAtom } from './states';
 
 /**
- * Keeps `userAtom` in sync with the Supabase session.
- * Mount once (in App). onAuthStateChange fires immediately with the
- * initial session, so OAuth redirects resolve without any polling hack.
+ * Syncs the backend session into state on app load.
+ * No backend (static mirror) → stays logged out, app runs in local mode.
+ * Login/logout (incl. magic-link redemption) refresh via updateData()
+ * in the Auth component — no polling needed.
  */
 export const useAuthSession = () => {
   const [, setUser] = useAtom(userAtom);
 
-  useEffect(() => {
+  React.useEffect(() => {
     let cancelled = false;
-
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }) => {
-        if (!cancelled) setUser(session?.user ?? null);
-      })
-      .catch(() => {
-        // e.g. placeholder URL in local-only mode — stay logged out
+    (async () => {
+      const ok = await checkBackend();
+      if (!ok) {
         if (!cancelled) setUser(null);
-      });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
+        return;
+      }
+      try {
+        const { user } = await api('/auth/session');
+        if (!cancelled) setUser(user ?? null);
+      } catch {
+        if (!cancelled) setUser(null);
+      }
+    })();
     return () => {
       cancelled = true;
-      subscription.unsubscribe();
     };
   }, [setUser]);
 };
+
+export default useAuthSession;

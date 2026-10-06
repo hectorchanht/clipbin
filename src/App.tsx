@@ -35,7 +35,7 @@ const DataLoader = () => {
 };
 
 export const App = () => {
-  // Syncs the Supabase session into state; login/logout (incl. OAuth
+  // Syncs the backend session into state; login/logout (incl. magic-link
   // redirects) automatically refetch data — no polling hacks needed.
   useAuthSession();
 

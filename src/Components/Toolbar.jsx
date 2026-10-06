@@ -1,7 +1,7 @@
 import { MinusIcon, SettingsIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex } from '@chakra-ui/react';
 import React from 'react';
-import { DeleteBtn, ResetPasswordBtn, SaveSettingBtn, IsEditingBtn } from '../Components/Buttons';
+import { DeleteBtn, SaveSettingBtn, IsEditingBtn } from '../Components/Buttons';
 import { getSettingData, useData } from '../libs/fns';
 
 
@@ -36,7 +36,6 @@ const Toolbar = () => {
         </Button>
         <DeleteBtn />
         <IsEditingBtn />
-        {userId && <ResetPasswordBtn />}
         <SaveSettingBtn />
       </Flex>
     );

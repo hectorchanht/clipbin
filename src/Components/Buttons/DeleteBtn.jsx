@@ -1,8 +1,8 @@
 import { CheckIcon, CloseIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Box, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text } from '@chakra-ui/react';
 import React from 'react';
+import { api } from '../../libs/apiClient';
 import { useData } from '../../libs/fns';
-import { supabase } from '../../libs/supabaseClient';
 
 
 const DeleteBtn = () => {
@@ -13,11 +13,12 @@ const DeleteBtn = () => {
   const handleClearData = async () => {
     try {
       if (userId) {
-        const { error } = await supabase.from('rushbin-data').delete().eq('user_id', userId);
-        if (error) throw new Error(error.message);
+        await api('/clips', { method: 'DELETE' });
       } else {
-        localStorage.setItem('rushbin-data', JSON.stringify([]));
-        localStorage.setItem('incremental-id', JSON.stringify(0));
+        localStorage.setItem('clipbin-data', JSON.stringify([]));
+        localStorage.setItem('clipbin-id', JSON.stringify(0));
+        localStorage.setItem('clipbin-images', JSON.stringify([]));
+        localStorage.setItem('clipbin-images-id', JSON.stringify(0));
       }
       setData([]);
       setSetting((d) => ({ ...d, currentPage: 1 }));
