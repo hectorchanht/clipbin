@@ -1,4 +1,4 @@
-import { Box, ChakraProvider, Container, extendTheme, Icon, Stack, useColorMode } from "@chakra-ui/react";
+import { Box, ChakraProvider, Container, extendTheme, Flex, Heading, Icon, Image, Stack, useColorMode } from "@chakra-ui/react";
 import * as React from "react";
 import Auth from "./Components/Auth";
 import ClipboardList from "./Components/ClipboardList";
@@ -20,7 +20,7 @@ const Footer = () => {
   const { colorMode } = useColorMode();
 
   return <Box textAlign={'center'} as="footer" mt="auto" pt={12}>
-    <a href="https://github.com/hectorchanht/rushbin-clipboard" target="_blank" rel="noopener noreferrer" >
+    <a href="https://github.com/hectorchanht/clipbin" target="_blank" rel="noopener noreferrer" >
       <GithubIcon colorMode={colorMode} /> source code
     </a>
   </Box>;
@@ -47,6 +47,10 @@ export const App = () => {
         <Box as={'main'} flex={1}>
 
           <Stack spacing={4}>
+            <Flex as={'header'} align='center' justify='center' gap={3} mt={2}>
+              <Image src='/logo.png' alt='Clipbin logo' boxSize='44px' borderRadius='md' />
+              <Heading size='lg'>Clipbin</Heading>
+            </Flex>
             <div>
               <Auth />
               <Toolbar />

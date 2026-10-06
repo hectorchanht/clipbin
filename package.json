@@ -1,5 +1,5 @@
 {
-  "name": "rushbin-clipboard-front-react",
+  "name": "clipbin",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {

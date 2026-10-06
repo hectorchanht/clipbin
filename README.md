@@ -1,12 +1,13 @@
-## 🤑 rushbin-clipboard
+## 📋 Clipbin
 
 Your private clipboard on cloud or local — for free, forever.
 
-Paste text and save it **locally** (browser localStorage, works fully offline), or **register an account** and sync it to the cloud via Supabase so you can access your clips on any device.
+Paste text **or images** and save them **locally** (browser localStorage, works fully offline), or **register an account** and sync to the cloud via Supabase so you can access your clips on any device.
 
 ## Features
 
 - 📋 Save from clipboard (`navigator.clipboard`) or from typed text
+- 🖼️ Image support — paste, drag & drop, or upload; private per-user storage bucket in the cloud, localStorage when logged out
 - 💾 Local-only mode with zero setup — works offline
 - ☁️ Cloud sync with Supabase (email/password, magic link, GitHub/Google/GitLab OAuth)
 - ✏️ Edit saved entries (toggle with the green edit button in the toolbar)
@@ -28,7 +29,7 @@ The app works out of the box with no credentials (local-only mode). To enable cl
 
 1. Create a project at [supabase.com](https://supabase.com)
 2. Copy `.env.example` to `.env` and fill in `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY`
-3. Run `supabase/migrations/0001_init.sql` in the Supabase SQL editor — it creates the two tables plus row-level-security policies so users can only read/write their own rows
+3. Run the migrations in `supabase/migrations/` in order in the Supabase SQL editor — they create the tables, the private image storage bucket, plus row-level-security policies so users can only read/write their own rows
 4. (Optional) Enable auth providers under Authentication → Providers: Email, Google, GitHub, GitLab. For OAuth, add your site URL to the provider's allowed callback URLs
 
 ### Deploy
@@ -59,7 +60,7 @@ src/
     useAuthSession.js# keeps the logged-in user in sync (incl. OAuth redirects)
     useClipboard.js  # local clipboard hook (copy + live preview)
 supabase/
-  migrations/0001_init.sql  # tables + RLS policies for cloud mode
+  migrations/  # 0001_init.sql (tables + RLS), 0002_images.sql (image table + private bucket), 0003_rename.sql (rushbin → clipbin)
 ```
 
 See [logic.md](./logic.md) for the original backend design notes.
