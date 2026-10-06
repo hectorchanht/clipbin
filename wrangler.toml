@@ -1,0 +1,14 @@
+# Clipbin — Cloudflare Pages project config.
+# Declares the Functions bindings in code so dashboard-set bindings
+# survive future git-triggered deploys.
+name = "clipbin"
+compatibility_date = "2025-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "clipbin-db"
+database_id = "0c70722d-d313-4811-8f2d-9e5cb1e65ade"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "clipbin-images"
