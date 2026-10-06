@@ -4,6 +4,10 @@
 name = "clipbin"
 compatibility_date = "2025-06-01"
 
+# Required for Pages: without this the Pages CI ignores wrangler.toml entirely
+# ("Skipping file and continuing") and the bindings below would not apply.
+pages_build_output_dir = "build"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "clipbin-db"
