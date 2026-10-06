@@ -1,7 +1,6 @@
 import { MinusIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Icon, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { OAuthLoginBtn } from '../Components/Buttons';
 import { useData, validateEmail } from '../libs/fns';
 import { supabase } from '../libs/supabaseClient';
 
@@ -145,11 +144,9 @@ export default function Auth() {
           <MinusIcon />
         </Button>
         {!emailValid && (
-          <>
-            <OAuthLoginBtn provider='github' />
-            <OAuthLoginBtn provider='gitlab' />
-            <OAuthLoginBtn provider='google' />
-          </>
+          <Box fontSize='sm' color='gray.500' alignSelf='center'>
+            Enter your email to log in or sign up
+          </Box>
         )}
 
         {emailValid && <>
