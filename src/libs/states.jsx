@@ -33,3 +33,6 @@ export const userAtom = atom(null);
 
 /** Bumped to trigger a single global data refetch (see useDataLoader). */
 export const dataVersionAtom = atom(0);
+
+/** Bumped to trigger an image-list refetch (see ImageSection). */
+export const imageVersionAtom = atom(0);

@@ -2,6 +2,7 @@ import { Box, ChakraProvider, Container, extendTheme, Icon, Stack, useColorMode 
 import * as React from "react";
 import Auth from "./Components/Auth";
 import ClipboardList from "./Components/ClipboardList";
+import ImageSection from "./Components/ImageSection";
 import PaginationTool from "./Components/PaginationTool";
 import PostFromClipboard from "./Components/PostFromClipboard";
 import PostFromText from './Components/PostFromText';
@@ -53,6 +54,7 @@ export const App = () => {
 
             <PostFromText />
             <PostFromClipboard />
+            <ImageSection />
             <PaginationTool />
             <ClipboardList />
           </Stack>
