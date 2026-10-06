@@ -52,7 +52,7 @@ export async function onRequestPost(context) {
     await sendMagicLinkEmail(env, email, link);
   } catch (e) {
     await env.DB.prepare('DELETE FROM magic_tokens WHERE token_hash = ?').bind(tokenHash).run();
-    return bad('Could not send the email. Please try again later.', 500);
+    return bad('DEBUG email send failed: ' + String((e && e.message) || e).slice(0, 300), 500);
   }
   return json({ ok: true });
 }
