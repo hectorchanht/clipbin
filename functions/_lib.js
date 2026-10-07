@@ -84,7 +84,9 @@ export function isValidEmail(email) {
 }
 
 export async function sendMagicLinkEmail(env, to, link) {
-  const from = env.MAGIC_LINK_FROM || 'Clipbin <login@hectorchan.com>';
+  // Default From uses the Resend-verified subdomain: the apex hectorchan.com
+  // is NOT verified in Resend, so the apex fallback can never deliver.
+  const from = env.MAGIC_LINK_FROM || 'Clipbin <login@mail.hectorchan.com>';
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
