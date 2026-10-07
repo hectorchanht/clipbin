@@ -90,7 +90,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
 
   if (items.length === 0) {
     return (
-      <Text color='gray.500' mt={1} fontSize='sm'>
+      <Text color='dimmed' mt={1} fontSize='sm'>
         No images yet — paste or upload one above.
       </Text>
     );
@@ -126,7 +126,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
           onClick={onPrev}
           isDisabled={page <= 1}
         />
-        <Text fontSize='xs' color='gray.500'>
+        <Text fontSize='xs' color='dimmed'>
           Page {page}
         </Text>
         <IconButton
@@ -172,7 +172,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
                 isLoading={working}
               />
             </Flex>
-            <Text fontSize='xs' color='gray.500' mt={2} textAlign='center'>
+            <Text fontSize='xs' color='dimmed' mt={2} textAlign='center'>
               {active?.mime}
               {active?.width ? ` · ${active.width}×${active.height}` : ''}
               {' · '}

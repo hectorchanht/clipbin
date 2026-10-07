@@ -91,7 +91,7 @@ function AuthModal() {
         <ModalCloseButton />
         <ModalBody pb={6}>
           {backend === false ? (
-            <Text fontSize='sm' color='gray.500'>
+            <Text fontSize='sm' color='dimmed'>
               Sign-in needs the Clipbin backend — this copy is running in local-only mode.
             </Text>
           ) : linkSentTo ? (
@@ -100,7 +100,7 @@ function AuthModal() {
               <Text>
                 We sent a sign-in link to <b>{linkSentTo}</b>.
               </Text>
-              <Text fontSize='sm' color='gray.500' mt={1}>
+              <Text fontSize='sm' color='dimmed' mt={1}>
                 Click it within 15 minutes to log in.
               </Text>
             </Box>
@@ -132,7 +132,7 @@ function AuthModal() {
             </Box>
           )}
           {!linkSentTo && backend !== false && (
-            <Text fontSize='xs' color='gray.500' mt={2}>
+            <Text fontSize='xs' color='dimmed' mt={2}>
               Passwordless login — we email you a sign-in link.
             </Text>
           )}

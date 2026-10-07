@@ -29,7 +29,7 @@ const PaginationTool = () => {
         onClick={() => setSetting((d) => ({ ...d, currentPage: d.currentPage - 1 }))}
       />
 
-      <Text fontSize='xs' color='gray.500' whiteSpace='nowrap'>
+      <Text fontSize='xs' color='dimmed' whiteSpace='nowrap'>
         Page {currentPage}
       </Text>
 

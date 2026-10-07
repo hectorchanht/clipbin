@@ -143,7 +143,7 @@ const ComposeRow = () => {
     }
   };
 
-  const statusColor = status === 'error' ? 'red.400' : 'gray.500';
+  const statusColor = status === 'error' ? 'red.400' : 'dimmed';
   const statusText =
     status === 'saving' ? 'Saving…' :
     status === 'saved' && savedAt ? `Saved ✓ ${savedAt.toLocaleTimeString()}` :
@@ -177,7 +177,7 @@ const ComposeRow = () => {
       </Flex>
 
       {/* One-line teaching hint: the icon button grabs the OS clipboard. */}
-      <Flex align='center' gap={1.5} mt={1.5} color='gray.500'>
+      <Flex align='center' gap={1.5} mt={1.5} color='dimmed'>
         <ClipboardPaste size={13} color='currentColor' style={{ flexShrink: 0 }} />
         <Text fontSize='xs'>
           Just copied something? Tap the clipboard button — it saves whatever&apos;s on your

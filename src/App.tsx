@@ -55,15 +55,24 @@ const holdrDanger = (props: any) =>
       };
 
 const holdrPrimary = () => ({
-  bg: '#059669',
+  bg: '#047857',
   color: '#fff',
   borderRadius: '0.5rem',
-  _hover: { bg: '#10b981', _disabled: { bg: '#059669' } },
-  _active: { bg: '#047857' },
+  _hover: { bg: '#059669', _disabled: { bg: '#047857' } },
+  _active: { bg: '#065f46' },
 });
 
 const theme = extendTheme({
   config: { initialColorMode: "dark", useSystemColorMode: true },
+  // Secondary text: brighter in dark mode so hints stay readable on zinc-950.
+  semanticTokens: {
+    colors: {
+      dimmed: {
+        default: 'dimmed',
+        _dark: '#a1a1aa',
+      },
+    },
+  },
   styles: {
     global: (props: any) => ({
       body: {

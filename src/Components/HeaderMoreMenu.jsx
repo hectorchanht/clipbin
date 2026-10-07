@@ -100,7 +100,7 @@ const HeaderMoreMenu = () => {
             <MenuItem icon={<LogOut size={16} />} onClick={handleLogout}>
               <Flex w='100%' justify='space-between' align='center' gap={6}>
                 <Text>Sign out</Text>
-                <Text fontSize='xs' color='gray.500' noOfLines={1} maxW='180px'>{user.email}</Text>
+                <Text fontSize='xs' color='dimmed' noOfLines={1} maxW='180px'>{user.email}</Text>
               </Flex>
             </MenuItem>
           ) : (

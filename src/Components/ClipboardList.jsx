@@ -113,7 +113,7 @@ const ClipboardRow = ({ entry }) => {
           isReadOnly={!isEditing}
           onChange={isEditing ? (e) => setDraft(e.target.value) : undefined}
         />
-        <Text fontSize='xs' color='gray.500' mt={1}>
+        <Text fontSize='xs' color='dimmed' mt={1}>
           {formatDate(entry.created_at)}
         </Text>
         {isEditing && isDirty && (
@@ -152,7 +152,7 @@ const ClipboardList = () => {
 
   if (data.length === 0) {
     return (
-      <Text color='gray.500' mt={8}>
+      <Text color='dimmed' mt={8}>
         Nothing here yet — type above and it saves when you tap away, or tap the clipboard icon to save what&apos;s on your clipboard.
       </Text>
     );
