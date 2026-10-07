@@ -1,9 +1,10 @@
-import { CopyIcon, DeleteIcon, DownloadIcon } from '@chakra-ui/icons';
+import { ArrowLeft, ArrowRight, Copy, Download, Trash2 } from 'lucide-react';
 import {
   Button,
   Flex,
   Grid,
   GridItem,
+  IconButton,
   Image,
   Modal,
   ModalBody,
@@ -117,15 +118,27 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
       </Grid>
 
       <Flex justify='space-between' align='center' mt={3}>
-        <Button size='sm' onClick={onPrev} isDisabled={page <= 1}>
-          Prev
-        </Button>
+        <IconButton
+          size='sm'
+          variant='outline'
+          aria-label='Previous page'
+          title='Previous page'
+          icon={<ArrowLeft size={16} />}
+          onClick={onPrev}
+          isDisabled={page <= 1}
+        />
         <Text fontSize='sm' color='gray.500'>
           Page {page}
         </Text>
-        <Button size='sm' onClick={onNext} isDisabled={!hasMore}>
-          Next
-        </Button>
+        <IconButton
+          size='sm'
+          variant='outline'
+          aria-label='Next page'
+          title='Next page'
+          icon={<ArrowRight size={16} />}
+          onClick={onNext}
+          isDisabled={!hasMore}
+        />
       </Flex>
 
       <Modal isOpen={!!active} onClose={() => setActive(null)} size='xl' isCentered>
@@ -137,7 +150,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
             <Flex gap={2} mt={4} justify='center' wrap='wrap'>
               <Button
                 size='sm'
-                leftIcon={<CopyIcon />}
+                leftIcon={<Copy size={16} />}
                 onClick={() => handleCopy(active)}
                 isDisabled={working}
               >
@@ -145,7 +158,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
               </Button>
               <Button
                 size='sm'
-                leftIcon={<DownloadIcon />}
+                leftIcon={<Download size={16} />}
                 onClick={() => handleDownload(active)}
                 isDisabled={working}
               >
@@ -155,7 +168,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
                 size='sm'
                 colorScheme='red'
                 variant='outline'
-                leftIcon={<DeleteIcon />}
+                leftIcon={<Trash2 size={16} />}
                 onClick={() => handleDelete(active)}
                 isLoading={working}
               >

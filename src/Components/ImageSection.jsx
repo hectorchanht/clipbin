@@ -1,4 +1,4 @@
-import { Box, Heading } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 import React from 'react';
 import ImageList from './ImageList';
@@ -55,10 +55,7 @@ const ImageSection = () => {
   }, [page, imageVersion, userId]);
 
   return (
-    <Box mt={8} textAlign='left'>
-      <Heading size='md' mb={3}>
-        Images
-      </Heading>
+    <Box mt={6} textAlign='left'>
       <PostImage />
       <ImageList
         items={items}

@@ -1,18 +1,10 @@
-import { ChevronUpIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Icon, Input, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Input, Text } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
+import { ChevronUp, LogIn, Send, UserRound } from 'lucide-react';
 import React from 'react';
 import { api, checkBackend } from '../libs/apiClient';
 import { useData, validateEmail } from '../libs/fns';
 import { userAtom } from '../libs/states';
-
-const AccountIcon = (props) => <Icon viewBox='0 0 24 24' {...props}>
-  <path fill='currentColor' d="M3 5v14a2 2 0 002 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5a2 2 0 00-2 2zm12 4c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3zm-9 8c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1H6v-1z"></path>
-</Icon>;
-
-const SwitchAccountIcon = (props) => <Icon viewBox='0 0 24 24' {...props}>
-  <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-6 2c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H8v-1.5c0-1.99 4-3 6-3s6 1.01 6 3V16z"></path>
-</Icon>;
 
 /**
  * Passwordless auth: the user enters an email, we send a magic link,
@@ -105,7 +97,7 @@ export default function Auth() {
         aria-label='Show login'
         title='Show login'
       >
-        {user?.id ? <SwitchAccountIcon /> : <AccountIcon />}
+        {user?.id ? <UserRound size={18} /> : <LogIn size={18} />}
       </Button>
     );
   }
@@ -114,7 +106,7 @@ export default function Auth() {
     return (
       <Flex justifyContent={'space-between'} my={4}>
         <Button variant='ghost' onClick={toggleAuthHidden} aria-label='Hide login' title='Hide login'>
-          <ChevronUpIcon />
+          <ChevronUp size={18} />
         </Button>
 
         <Button
@@ -143,7 +135,7 @@ export default function Auth() {
       />
       <Flex justifyContent={'space-between'} alignItems={'center'}>
         <Button variant='ghost' onClick={toggleAuthHidden} aria-label='Hide login' title='Hide login'>
-          <ChevronUpIcon />
+          <ChevronUp size={18} />
         </Button>
         <Button
           isLoading={sending || isLoading.auth}
@@ -151,6 +143,7 @@ export default function Auth() {
           variant='outline'
           onClick={sendMagicLink}
           isDisabled={!emailValid}
+          leftIcon={<Send size={16} />}
         >
           Send magic link
         </Button>

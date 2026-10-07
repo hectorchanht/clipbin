@@ -1,5 +1,5 @@
-import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons';
 import { Flex, IconButton, Select, Text } from '@chakra-ui/react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import React from 'react';
 import { useData } from '../libs/fns';
 
@@ -21,7 +21,7 @@ const PaginationTool = () => {
       <IconButton
         aria-label='Previous page'
         title='Previous page'
-        icon={<ArrowBackIcon />}
+        icon={<ArrowLeft size={18} />}
         variant='outline'
         isLoading={isLoading.get}
         isDisabled={currentPage <= 1}
@@ -45,7 +45,7 @@ const PaginationTool = () => {
       <IconButton
         aria-label='Next page'
         title='Next page'
-        icon={<ArrowForwardIcon />}
+        icon={<ArrowRight size={18} />}
         variant='outline'
         isDisabled={!hasMore}
         isLoading={isLoading.get}

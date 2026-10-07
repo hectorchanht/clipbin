@@ -2,33 +2,26 @@ import { Flex, Text, Textarea } from '@chakra-ui/react';
 import React from 'react';
 import { postData, useData } from '../libs/fns';
 
-// Idle time after the last keystroke before the note is auto-saved.
-const AUTOSAVE_DELAY = 1200;
-
+/**
+ * The note field auto-saves when the user is DONE with it (blur),
+ * never on a timer — so typing is never cut off mid-thought.
+ * A hidden-tab / unmount flush catches drafts that never blurred.
+ */
 const PostFromText = ({ showInput = true }) => {
   const { updateData, setSetting, toastError, userId } = useData();
   const [text, setText] = React.useState('');
-  // idle | typing | saving | saved | error
+  // idle | saving | saved | error
   const [status, setStatus] = React.useState('idle');
   const [errorMsg, setErrorMsg] = React.useState('');
   const [savedAt, setSavedAt] = React.useState(null);
 
-  // Mutable bits live in a ref so timers never capture stale state.
-  const stateRef = React.useRef({ text: '', saving: false, timer: null });
+  // Mutable bits live in a ref so blur/unmount handlers never go stale.
+  const stateRef = React.useRef({ text: '', saving: false });
   stateRef.current.text = text;
   const userIdRef = React.useRef(userId);
   userIdRef.current = userId;
 
-  const scheduleSave = () => {
-    const st = stateRef.current;
-    if (st.timer) clearTimeout(st.timer);
-    st.timer = setTimeout(() => {
-      st.timer = null;
-      void saveRef.current();
-    }, AUTOSAVE_DELAY);
-  };
-
-  const doSave = async () => {
+  const doSave = React.useCallback(async () => {
     const st = stateRef.current;
     const val = st.text;
     if (!val.trim() || st.saving) return;
@@ -49,39 +42,46 @@ const PostFromText = ({ showInput = true }) => {
       toastError(e.message);
     } finally {
       stateRef.current.saving = false;
-      // Text changed while saving → schedule another pass for the rest.
-      if (stateRef.current.text.trim()) scheduleSave();
     }
-  };
+  }, [setSetting, updateData, toastError]);
   const saveRef = React.useRef(doSave);
   saveRef.current = doSave;
 
-  // Flush any pending save on unmount — best effort, nothing may be lost.
-  React.useEffect(() => () => {
-    const st = stateRef.current;
-    if (st.timer) {
-      clearTimeout(st.timer);
-      st.timer = null;
-    }
-    if (st.text.trim() && !st.saving) {
-      postData(st.text, userIdRef.current).catch(() => {});
-    }
+  // Flush any unsaved draft when the tab goes hidden (mobile app switch)
+  // or the component unmounts — best effort, nothing may be lost.
+  React.useEffect(() => {
+    const flush = () => {
+      const st = stateRef.current;
+      const val = st.text;
+      if (val.trim() && !st.saving) {
+        st.saving = true;
+        st.text = '';
+        postData(val, userIdRef.current).catch(() => {});
+      }
+    };
+    const onVis = () => { if (document.hidden) flush(); };
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      flush();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = (e) => {
     setText(e.target.value);
-    setStatus('typing');
-    setErrorMsg('');
-    scheduleSave();
+    if (status === 'saved' || status === 'error') {
+      setStatus('idle');
+      setErrorMsg('');
+    }
   };
 
   const statusColor = status === 'error' ? 'red.400' : 'gray.500';
   const statusText =
-    status === 'typing' ? '…' :
     status === 'saving' ? 'Saving…' :
     status === 'saved' && savedAt ? `Saved ✓ ${savedAt.toLocaleTimeString()}` :
-    status === 'error' ? errorMsg : '';
+    status === 'error' ? errorMsg :
+    'Type anything — saves when you tap away';
 
   return (
     <React.Fragment>
@@ -89,14 +89,12 @@ const PostFromText = ({ showInput = true }) => {
         <Textarea
           value={text}
           onChange={handleChange}
-          placeholder='Type or paste text here…'
+          onBlur={() => saveRef.current()}
+          placeholder='Type anything to save…'
         />
       )}
 
-      <Flex justify='space-between' align='center' mt={1} minH='20px'>
-        <Text fontSize='xs' color='gray.500'>
-          New note — saves automatically
-        </Text>
+      <Flex justify='flex-end' align='center' mt={1} minH='20px'>
         <Text fontSize='xs' color={statusColor}>
           {statusText}
         </Text>

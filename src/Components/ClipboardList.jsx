@@ -1,5 +1,5 @@
-import { CopyIcon, DeleteIcon } from '@chakra-ui/icons';
 import { Button, Grid, GridItem, IconButton, Skeleton, Text, Textarea } from '@chakra-ui/react';
+import { Copy, Trash2 } from 'lucide-react';
 import React from 'react';
 import useClipboard from '../libs/useClipboard';
 import { deleteData, patchData, useData } from '../libs/fns';
@@ -89,7 +89,7 @@ const ClipboardRow = ({ entry }) => {
         <IconButton
           aria-label='Copy to clipboard'
           title='Copy to clipboard'
-          icon={<CopyIcon />}
+          icon={<Copy size={16} />}
           size='sm'
           variant='ghost'
           onClick={() => copyToClipboard(entry.val)}
@@ -99,7 +99,7 @@ const ClipboardRow = ({ entry }) => {
         <IconButton
           aria-label='Delete entry'
           title='Delete entry'
-          icon={<DeleteIcon />}
+          icon={<Trash2 size={16} />}
           size='sm'
           variant='ghost'
           colorScheme='red'
@@ -141,7 +141,7 @@ const ClipboardList = () => {
   if (data.length === 0) {
     return (
       <Text color='gray.500' mt={8}>
-        Nothing here yet — paste something above to save it.
+        Nothing here yet — type anything above and it saves automatically, or tap Save Clipboard.
       </Text>
     );
   }

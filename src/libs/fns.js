@@ -250,3 +250,38 @@ export const useDataLoader = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, pageSize, dataVersion, userId]);
 };
+
+/**
+ * Settings sync: load from cloud/local when the account changes, and
+ * auto-persist (debounced) whenever settings change — no save button.
+ */
+export const useSettingsSync = () => {
+  const { setting, setSetting, userId, toastError } = useData();
+  const first = React.useRef(true);
+
+  // Load settings when the account changes (login / logout).
+  React.useEffect(() => {
+    let cancelled = false;
+    getSettingData(userId)
+      .then((s) => { if (!cancelled) setSetting(s); })
+      .catch((e) => { if (!cancelled) toastError(e.message); });
+    return () => { cancelled = true; };
+    // setSetting/toastError are stable; userId drives reload.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  // Auto-persist on change (skips the first run so the initial load
+  // never writes back).
+  React.useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    const t = setTimeout(() => {
+      saveSettingData(setting, userId).catch(() => {
+        // Quiet: settings are a nice-to-have, never block the UI.
+      });
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [setting, userId]);
+};

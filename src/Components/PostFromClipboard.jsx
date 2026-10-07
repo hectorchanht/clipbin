@@ -1,4 +1,5 @@
 import { Button, Textarea } from '@chakra-ui/react';
+import { ClipboardPaste } from 'lucide-react';
 import { useAtom } from 'jotai';
 import React from 'react';
 import useClipboard from '../libs/useClipboard';
@@ -71,6 +72,7 @@ const PostFromClipboard = ({ showInput = true }) => {
         isLoading={isLoading.post}
         colorScheme='teal'
         variant='solid'
+        leftIcon={<ClipboardPaste size={18} />}
       >
         Save Clipboard
       </Button>

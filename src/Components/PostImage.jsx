@@ -1,14 +1,16 @@
-import { Box, Button, Input, Text } from '@chakra-ui/react';
+import { Flex, IconButton, Input, Spacer, Text } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
+import { ImagePlus } from 'lucide-react';
 import React from 'react';
 import { useData } from '../libs/fns';
 import { postImage } from '../libs/imageStore';
 import { imageVersionAtom } from '../libs/states';
 
 /**
- * Save images: paste from clipboard anywhere in the app, drag & drop,
- * or pick files. Saved images land in the private cloud bucket when
- * logged in, or localStorage when logged out.
+ * Image capture, compact: one row — "Images" label plus a single
+ * upload icon button (this is all mobile shows). Paste works anywhere
+ * in the app; the row doubles as a drop target and highlights while
+ * dragging.
  */
 const PostImage = () => {
   const { userId, toastError, toastSuccess, setIsLoading } = useData();
@@ -69,12 +71,13 @@ const PostImage = () => {
   }, [saveFiles]);
 
   return (
-    <Box
+    <Flex
+      align='center'
       border='2px dashed'
-      borderColor={dragging ? 'teal.300' : 'gray.600'}
+      borderColor={dragging ? 'teal.300' : 'transparent'}
       borderRadius='md'
-      p={5}
-      textAlign='center'
+      px={1}
+      py={0.5}
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -86,17 +89,21 @@ const PostImage = () => {
         saveFiles(e.dataTransfer?.files);
       }}
     >
-      <Text color='gray.500' mb={3} fontSize='sm'>
-        Paste, drag &amp; drop, or upload images
+      <Text fontWeight='semibold' fontSize='md'>
+        Images
       </Text>
-      <Button
-        colorScheme='teal'
-        variant='outline'
+      <Text fontSize='xs' color='gray.500' ml={2}>
+        paste · drop · upload
+      </Text>
+      <Spacer />
+      <IconButton
+        aria-label='Upload images'
+        title='Upload images'
+        icon={<ImagePlus size={18} />}
+        variant='ghost'
         isLoading={busy}
         onClick={() => inputRef.current?.click()}
-      >
-        Upload images
-      </Button>
+      />
       <Input
         ref={inputRef}
         type='file'
@@ -108,7 +115,7 @@ const PostImage = () => {
           e.target.value = '';
         }}
       />
-    </Box>
+    </Flex>
   );
 };
 
