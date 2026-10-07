@@ -1,5 +1,5 @@
 import { ArrowBackIcon, ArrowForwardIcon } from '@chakra-ui/icons';
-import { Button, Flex, Select } from '@chakra-ui/react';
+import { Flex, IconButton, Select, Text } from '@chakra-ui/react';
 import React from 'react';
 import { useData } from '../libs/fns';
 
@@ -17,32 +17,40 @@ const PaginationTool = () => {
   };
 
   return (
-    <Flex>
-      <Button
-        colorScheme='pink' variant='solid'
+    <Flex align='center' gap={2}>
+      <IconButton
+        aria-label='Previous page'
+        title='Previous page'
+        icon={<ArrowBackIcon />}
+        variant='outline'
         isLoading={isLoading.get}
         isDisabled={currentPage <= 1}
         onClick={() => setSetting((d) => ({ ...d, currentPage: d.currentPage - 1 }))}
-      >
-        <ArrowBackIcon />
-      </Button>
+      />
+
+      <Text fontSize='sm' color='gray.500' whiteSpace='nowrap'>
+        Page {currentPage}
+      </Text>
 
       <Select
+        aria-label='Entries per page'
         placeholder={`page size: ${pageSize}`}
         onChange={handleSelectChange}
         value={PAGE_SIZES.includes(pageSize) ? pageSize : ''}
+        maxW='150px'
       >
         {PAGE_SIZES.map((d) => <option key={d} value={d}>{d}</option>)}
       </Select>
 
-      <Button
-        colorScheme='pink' variant='solid'
+      <IconButton
+        aria-label='Next page'
+        title='Next page'
+        icon={<ArrowForwardIcon />}
+        variant='outline'
         isDisabled={!hasMore}
         isLoading={isLoading.get}
         onClick={() => setSetting((d) => ({ ...d, currentPage: d.currentPage + 1 }))}
-      >
-        <ArrowForwardIcon />
-      </Button>
+      />
     </Flex>
   );
 };

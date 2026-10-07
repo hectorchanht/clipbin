@@ -98,7 +98,13 @@ export default function Auth() {
 
   if (setting?.isAuthHidden) {
     return (
-      <Button colorScheme={'blue'} onClick={toggleAuthHidden}>
+      <Button
+        variant='ghost'
+        colorScheme='blue'
+        onClick={toggleAuthHidden}
+        aria-label='Show login'
+        title='Show login'
+      >
         {user?.id ? <SwitchAccountIcon /> : <AccountIcon />}
       </Button>
     );
@@ -107,7 +113,7 @@ export default function Auth() {
   if (user?.id) {
     return (
       <Flex justifyContent={'space-between'} my={4}>
-        <Button bg={'transparent'} onClick={toggleAuthHidden}>
+        <Button variant='ghost' onClick={toggleAuthHidden} aria-label='Hide login' title='Hide login'>
           <MinusIcon />
         </Button>
 
@@ -136,7 +142,7 @@ export default function Auth() {
         mb={3}
       />
       <Flex justifyContent={'space-between'} alignItems={'center'}>
-        <Button bg={'transparent'} onClick={toggleAuthHidden}>
+        <Button variant='ghost' onClick={toggleAuthHidden} aria-label='Hide login' title='Hide login'>
           <MinusIcon />
         </Button>
         <Button

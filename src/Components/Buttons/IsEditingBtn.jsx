@@ -7,23 +7,23 @@ const IsEditingBtn = () => {
   const { setting, setSetting, toast } = useData();
 
   const handleEdit = () => {
-    if (setting.isEditing) {
-      setSetting(d => ({ ...d, isEditing: !d.isEditing }))
-      toast({ title: 'Editable Turn Off' })
-    } else {
-      setSetting(d => ({ ...d, isEditing: !d.isEditing }))
-      toast({ title: 'Editable Turn On' })
-    }
-
+    const next = !setting.isEditing;
+    setSetting((d) => ({ ...d, isEditing: next }));
+    toast({ title: next ? 'Editable Turn On' : 'Editable Turn Off' });
   };
 
   return (
-    <Button onClick={handleEdit} colorScheme={'green'}>
+    <Button
+      onClick={handleEdit}
+      variant='ghost'
+      colorScheme='teal'
+      isActive={setting.isEditing}
+      aria-label='Toggle edit mode'
+      title='Toggle edit mode'
+    >
       <EditIcon />
     </Button>
-  )
+  );
 };
 
 export default IsEditingBtn;
-
-

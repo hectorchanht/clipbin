@@ -1,5 +1,5 @@
 import { CopyIcon, DeleteIcon } from '@chakra-ui/icons';
-import { Button, Grid, GridItem, Skeleton, Text, Textarea } from '@chakra-ui/react';
+import { Button, Grid, GridItem, IconButton, Skeleton, Text, Textarea } from '@chakra-ui/react';
 import React from 'react';
 import useClipboard from '../libs/useClipboard';
 import { deleteData, patchData, useData } from '../libs/fns';
@@ -86,18 +86,26 @@ const ClipboardRow = ({ entry }) => {
   return (
     <React.Fragment>
       <GridItem rowSpan={1}>
-        <Button aria-label='Copy to clipboard' onClick={() => copyToClipboard(entry.val)}>
-          <CopyIcon />
-        </Button>
+        <IconButton
+          aria-label='Copy to clipboard'
+          title='Copy to clipboard'
+          icon={<CopyIcon />}
+          size='sm'
+          variant='ghost'
+          onClick={() => copyToClipboard(entry.val)}
+        />
       </GridItem>
       <GridItem colSpan={1}>
-        <Button
+        <IconButton
           aria-label='Delete entry'
+          title='Delete entry'
+          icon={<DeleteIcon />}
+          size='sm'
+          variant='ghost'
+          colorScheme='red'
           onClick={handleDelete}
           isLoading={isLoading.delete}
-        >
-          <DeleteIcon />
-        </Button>
+        />
       </GridItem>
       <GridItem colSpan={4}>
         <Textarea
@@ -110,7 +118,7 @@ const ClipboardRow = ({ entry }) => {
         </Text>
         {isEditing && isDirty && (
           <Grid templateColumns='repeat(2, 1fr)' gap={2} mt={2}>
-            <Button size='sm' colorScheme='green' isLoading={saving} onClick={handleSaveEdit}>
+            <Button size='sm' colorScheme='teal' isLoading={saving} onClick={handleSaveEdit}>
               Save
             </Button>
             <Button size='sm' variant='ghost' isDisabled={saving} onClick={handleCancelEdit}>

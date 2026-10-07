@@ -32,7 +32,14 @@ const DeleteBtn = () => {
 
   return (
     <Box>
-      <Button colorScheme='red' onClick={() => setIsOpen(true)} isDisabled={data.length < 1} aria-label='Delete all entries'>
+      <Button
+        colorScheme='red'
+        variant='ghost'
+        onClick={() => setIsOpen(true)}
+        isDisabled={data.length < 1}
+        aria-label='Delete all entries'
+        title='Delete all entries'
+      >
         <DeleteIcon />
       </Button>
 
