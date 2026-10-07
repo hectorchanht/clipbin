@@ -1,6 +1,6 @@
-import { Box, Button, Flex, Input, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, IconButton, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
-import { ChevronUp, LogIn, Send, UserRound } from 'lucide-react';
+import { ChevronUp, CornerDownLeft, LogIn, UserRound } from 'lucide-react';
 import React from 'react';
 import { api, checkBackend } from '../libs/apiClient';
 import { useData, validateEmail } from '../libs/fns';
@@ -16,6 +16,7 @@ export default function Auth() {
   const [, setUser] = useAtom(userAtom);
   const [email, setEmail] = React.useState('');
   const [sending, setSending] = React.useState(false);
+  const [linkSentTo, setLinkSentTo] = React.useState(null);
   const [backend, setBackend] = React.useState(null);
 
   React.useEffect(() => {
@@ -54,11 +55,7 @@ export default function Auth() {
     setIsLoading((d) => ({ ...d, auth: true }));
     try {
       await api('/auth/magic-link', { method: 'POST', body: { email: email.trim() } });
-      toast({
-        title: 'Check your email!',
-        description: 'Click the magic link to log in (expires in 15 minutes).',
-        status: 'success',
-      });
+      setLinkSentTo(email.trim());
       setEmail('');
     } catch (e) {
       toastError(e.message);
@@ -125,32 +122,53 @@ export default function Auth() {
 
   return (
     <Box as={'form'} mb={4} onSubmit={(e) => { e.preventDefault(); if (emailValid) sendMagicLink(); }}>
-      <Input
-        autoComplete={'email'}
-        type={'email'}
-        placeholder='Enter Email'
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        mb={3}
-      />
-      <Flex justifyContent={'space-between'} alignItems={'center'}>
-        <Button variant='ghost' onClick={toggleAuthHidden} aria-label='Hide login' title='Hide login'>
-          <ChevronUp size={18} />
-        </Button>
-        <Button
-          isLoading={sending || isLoading.auth}
+      <Flex gap={2} align='center'>
+        <Input
+          autoComplete={'email'}
+          type={'email'}
+          placeholder='Email for magic link…'
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <IconButton
+          type='submit'
+          aria-label='Send magic link'
+          title='Send magic link'
+          icon={<CornerDownLeft size={18} />}
           colorScheme='teal'
           variant='outline'
-          onClick={sendMagicLink}
+          isLoading={sending || isLoading.auth}
           isDisabled={!emailValid}
-          leftIcon={<Send size={16} />}
-        >
-          Send magic link
-        </Button>
+        />
+        <IconButton
+          aria-label='Hide login'
+          title='Hide login'
+          icon={<ChevronUp size={18} />}
+          variant='ghost'
+          onClick={toggleAuthHidden}
+        />
       </Flex>
-      <Text fontSize='xs' color='gray.500' mt={2}>
+      <Text fontSize='xs' color='gray.500' mt={1}>
         Passwordless login — we email you a sign-in link.
       </Text>
+
+      <Modal isOpen={!!linkSentTo} onClose={() => setLinkSentTo(null)} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Check your email</ModalHeader>
+          <ModalBody>
+            <Text>
+              We sent a sign-in link to <b>{linkSentTo}</b>.
+              Click it within 15 minutes to log in.
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme='teal' onClick={() => setLinkSentTo(null)}>
+              Got it
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

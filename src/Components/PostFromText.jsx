@@ -91,6 +91,7 @@ const PostFromText = ({ showInput = true }) => {
           onChange={handleChange}
           onBlur={() => saveRef.current()}
           placeholder='Type anything to save…'
+          rows={6}
         />
       )}
 
