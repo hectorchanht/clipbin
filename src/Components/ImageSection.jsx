@@ -2,7 +2,6 @@ import { Box } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 import React from 'react';
 import ImageList from './ImageList';
-import PostImage from './PostImage';
 import { useData } from '../libs/fns';
 import { getImages } from '../libs/imageStore';
 import { imageVersionAtom } from '../libs/states';
@@ -10,9 +9,10 @@ import { imageVersionAtom } from '../libs/states';
 const IMAGE_PAGE_SIZE = 12;
 
 /**
- * Owns the image collection: upload/paste/drop (PostImage) plus the
- * thumbnail grid with its own pagination (ImageList). Images refresh
- * whenever imageVersionAtom is bumped, and refetch on login/logout.
+ * Owns the image thumbnail grid with its own pagination (ImageList).
+ * The upload row (PostImage) lives above the compose box in App —
+ * this section is just the grid. Refreshes whenever imageVersionAtom
+ * is bumped, and refetches on login/logout.
  */
 const ImageSection = () => {
   const { userId, toastError } = useData();
@@ -55,8 +55,7 @@ const ImageSection = () => {
   }, [page, imageVersion, userId]);
 
   return (
-    <Box mt={6} textAlign='left'>
-      <PostImage />
+    <Box mt={1} textAlign='left'>
       <ImageList
         items={items}
         loading={loading}

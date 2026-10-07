@@ -77,7 +77,7 @@ const PostImage = () => {
       borderColor={dragging ? 'teal.300' : 'transparent'}
       borderRadius='md'
       px={1}
-      py={0.5}
+      py={0}
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -89,7 +89,7 @@ const PostImage = () => {
         saveFiles(e.dataTransfer?.files);
       }}
     >
-      <Text fontWeight='semibold' fontSize='md'>
+      <Text fontWeight='semibold' fontSize='sm'>
         Images
       </Text>
       <Text fontSize='xs' color='gray.500' ml={2}>
@@ -97,9 +97,10 @@ const PostImage = () => {
       </Text>
       <Spacer />
       <IconButton
+        size='sm'
         aria-label='Upload images'
         title='Upload images'
-        icon={<ImagePlus size={18} />}
+        icon={<ImagePlus size={16} />}
         variant='ghost'
         isLoading={busy}
         onClick={() => inputRef.current?.click()}

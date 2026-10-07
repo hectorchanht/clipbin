@@ -4,8 +4,6 @@ import { atom } from 'jotai';
 export const DEFAULT_PAGE_SIZE = 10;
 
 export const DEFAULT_SETTING = {
-  isAuthHidden: false,
-  isSettingHidden: false,
   currentPage: 1,
   pageSize: DEFAULT_PAGE_SIZE,
   isEditing: false,
@@ -36,3 +34,6 @@ export const dataVersionAtom = atom(0);
 
 /** Bumped to trigger an image-list refetch (see ImageSection). */
 export const imageVersionAtom = atom(0);
+
+/** Opens the magic-link sign-in modal (triggered from the header ⋯ menu). */
+export const authModalOpenAtom = atom(false);

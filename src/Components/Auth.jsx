@@ -1,31 +1,20 @@
-import { Box, Button, Flex, IconButton, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text } from '@chakra-ui/react';
+import { Box, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Text } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
-import { ChevronUp, CornerDownLeft, LogIn, UserRound } from 'lucide-react';
+import { MailCheck, Send } from 'lucide-react';
 import React from 'react';
 import { api, checkBackend } from '../libs/apiClient';
 import { useData, validateEmail } from '../libs/fns';
-import { userAtom } from '../libs/states';
+import { authModalOpenAtom, userAtom } from '../libs/states';
 
 /**
- * Passwordless auth: the user enters an email, we send a magic link,
- * they click it (in any browser) and come back logged in.
- * No backend (static mirror) → local-only mode, auth UI stays hidden.
+ * Redeems a magic-link token from the URL (?magic=token). Runs once on
+ * mount; the link itself does nothing until the app POSTs the token, so
+ * mail-scanner prefetching can't burn the single-use token.
  */
-export default function Auth() {
-  const { updateData, isLoading, setIsLoading, setting, setSetting, toast, toastError, user } = useData();
+export function useMagicRedeem() {
+  const { updateData, setIsLoading, toast, toastError } = useData();
   const [, setUser] = useAtom(userAtom);
-  const [email, setEmail] = React.useState('');
-  const [sending, setSending] = React.useState(false);
-  const [linkSentTo, setLinkSentTo] = React.useState(null);
-  const [backend, setBackend] = React.useState(null);
 
-  React.useEffect(() => {
-    checkBackend().then(setBackend);
-  }, []);
-
-  // Coming back from a magic link (?magic=token): redeem it.
-  // The link itself does nothing until the app POSTs the token, so
-  // mail-scanner prefetching can't burn the single-use token.
   React.useEffect(() => {
     const url = new URL(window.location.href);
     const token = url.searchParams.get('magic');
@@ -49,13 +38,40 @@ export default function Auth() {
     // Runs once on mount; toast/toastError/setUser are stable.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+}
+
+/**
+ * Passwordless sign-in, opened from the header ⋯ menu: the user enters
+ * an email, we send a magic link, they click it (in any browser) and
+ * come back logged in. No backend (static mirror) → the menu hides
+ * the sign-in entry, so this modal never opens there.
+ */
+function AuthModal() {
+  const [open, setOpen] = useAtom(authModalOpenAtom);
+  const { isLoading, setIsLoading, toastError } = useData();
+  const [email, setEmail] = React.useState('');
+  const [sending, setSending] = React.useState(false);
+  const [linkSentTo, setLinkSentTo] = React.useState(null);
+  const [backend, setBackend] = React.useState(null);
+
+  React.useEffect(() => {
+    if (open) checkBackend().then(setBackend);
+  }, [open ]);
+
+  const close = () => {
+    setOpen(false);
+    setEmail('');
+    setLinkSentTo(null);
+  };
 
   const sendMagicLink = async () => {
+    const addr = email.trim();
+    if (!validateEmail(addr)) return;
     setSending(true);
     setIsLoading((d) => ({ ...d, auth: true }));
     try {
-      await api('/auth/magic-link', { method: 'POST', body: { email: email.trim() } });
-      setLinkSentTo(email.trim());
+      await api('/auth/magic-link', { method: 'POST', body: { email: addr } });
+      setLinkSentTo(addr);
       setEmail('');
     } catch (e) {
       toastError(e.message);
@@ -65,110 +81,69 @@ export default function Auth() {
     }
   };
 
-  const handleLogout = async () => {
-    setIsLoading((d) => ({ ...d, auth: true }));
-    try {
-      await api('/auth/logout', { method: 'POST' });
-    } catch (e) {
-      toastError(e.message);
-    } finally {
-      setUser(null);
-      updateData();
-      setIsLoading((d) => ({ ...d, auth: false }));
-    }
-  };
-
-  const toggleAuthHidden = () => setSetting((d) => ({ ...d, isAuthHidden: !d.isAuthHidden }));
-
-  // No backend → local-only mode: nothing to log into.
-  if (backend === false) {
-    return null;
-  }
-
-  if (setting?.isAuthHidden) {
-    return (
-      <Button
-        variant='ghost'
-        colorScheme='blue'
-        onClick={toggleAuthHidden}
-        aria-label='Show login'
-        title='Show login'
-      >
-        {user?.id ? <UserRound size={18} /> : <LogIn size={18} />}
-      </Button>
-    );
-  }
-
-  if (user?.id) {
-    return (
-      <Flex justifyContent={'space-between'} my={4}>
-        <Button variant='ghost' onClick={toggleAuthHidden} aria-label='Hide login' title='Hide login'>
-          <ChevronUp size={18} />
-        </Button>
-
-        <Button
-          isLoading={isLoading.auth}
-          colorScheme='teal'
-          variant='outline'
-          onClick={handleLogout}
-        >
-          Logout {user.email}
-        </Button>
-      </Flex>
-    );
-  }
-
-  const emailValid = validateEmail(email);
+  const emailValid = validateEmail(email.trim());
 
   return (
-    <Box as={'form'} mb={4} onSubmit={(e) => { e.preventDefault(); if (emailValid) sendMagicLink(); }}>
-      <Flex gap={2} align='center'>
-        <Input
-          autoComplete={'email'}
-          type={'email'}
-          placeholder='Email for magic link…'
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <IconButton
-          type='submit'
-          aria-label='Send magic link'
-          title='Send magic link'
-          icon={<CornerDownLeft size={18} />}
-          colorScheme='teal'
-          variant='outline'
-          isLoading={sending || isLoading.auth}
-          isDisabled={!emailValid}
-        />
-        <IconButton
-          aria-label='Hide login'
-          title='Hide login'
-          icon={<ChevronUp size={18} />}
-          variant='ghost'
-          onClick={toggleAuthHidden}
-        />
-      </Flex>
-      <Text fontSize='xs' color='gray.500' mt={1}>
-        Passwordless login — we email you a sign-in link.
-      </Text>
-
-      <Modal isOpen={!!linkSentTo} onClose={() => setLinkSentTo(null)} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Check your email</ModalHeader>
-          <ModalBody>
-            <Text>
-              We sent a sign-in link to <b>{linkSentTo}</b>.
-              Click it within 15 minutes to log in.
+    <Modal isOpen={open} onClose={close} isCentered>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Sign in</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          {backend === false ? (
+            <Text fontSize='sm' color='gray.500'>
+              Sign-in needs the Clipbin backend — this copy is running in local-only mode.
             </Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme='teal' onClick={() => setLinkSentTo(null)}>
-              Got it
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </Box>
+          ) : linkSentTo ? (
+            <Box textAlign='center' py={2}>
+              <MailCheck size={32} style={{ margin: '0 auto 8px' }} />
+              <Text>
+                We sent a sign-in link to <b>{linkSentTo}</b>.
+              </Text>
+              <Text fontSize='sm' color='gray.500' mt={1}>
+                Click it within 15 minutes to log in.
+              </Text>
+            </Box>
+          ) : (
+            <Box
+              as='form'
+              display='flex'
+              gap={2}
+              onSubmit={(e) => { e.preventDefault(); if (emailValid) sendMagicLink(); }}
+            >
+              <Input
+                autoFocus
+                autoComplete='email'
+                type='email'
+                placeholder='you@example.com'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <IconButton
+                type='submit'
+                aria-label='Send magic link'
+                title='Send magic link'
+                icon={<Send size={18} />}
+                colorScheme='teal'
+                isLoading={sending || isLoading.auth}
+                isDisabled={!emailValid}
+                flexShrink={0}
+              />
+            </Box>
+          )}
+          {!linkSentTo && backend !== false && (
+            <Text fontSize='xs' color='gray.500' mt={2}>
+              Passwordless login — we email you a sign-in link.
+            </Text>
+          )}
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
+}
+
+/** Invisible glue: magic-link redemption + the sign-in modal. */
+export default function Auth() {
+  useMagicRedeem();
+  return <AuthModal />;
 }

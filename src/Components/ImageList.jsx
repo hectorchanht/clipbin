@@ -1,6 +1,5 @@
 import { ArrowLeft, ArrowRight, Copy, Download, Trash2 } from 'lucide-react';
 import {
-  Button,
   Flex,
   Grid,
   GridItem,
@@ -81,9 +80,9 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
 
   if (loading) {
     return (
-      <Grid templateColumns='repeat(3, 1fr)' gap={3} mt={4}>
+      <Grid templateColumns='repeat(3, 1fr)' gap={2} mt={1}>
         {[...Array(6)].map((_, i) => (
-          <Skeleton key={i} height='120px' borderRadius='md' />
+          <Skeleton key={i} height='96px' borderRadius='md' />
         ))}
       </Grid>
     );
@@ -91,7 +90,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
 
   if (items.length === 0) {
     return (
-      <Text color='gray.500' mt={4} fontSize='sm'>
+      <Text color='gray.500' mt={1} fontSize='sm'>
         No images yet — paste or upload one above.
       </Text>
     );
@@ -99,7 +98,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
 
   return (
     <React.Fragment>
-      <Grid templateColumns='repeat(3, 1fr)' gap={3} mt={4}>
+      <Grid templateColumns='repeat(3, 1fr)' gap={2} mt={1}>
         {items.map((r) => (
           <GridItem key={r.id}>
             <Image
@@ -107,7 +106,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
               alt=''
               borderRadius='md'
               objectFit='cover'
-              h='120px'
+              h='96px'
               w='100%'
               cursor='pointer'
               loading='lazy'
@@ -117,7 +116,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
         ))}
       </Grid>
 
-      <Flex justify='space-between' align='center' mt={3}>
+      <Flex justify='space-between' align='center' mt={1}>
         <IconButton
           size='sm'
           variant='outline'
@@ -127,7 +126,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
           onClick={onPrev}
           isDisabled={page <= 1}
         />
-        <Text fontSize='sm' color='gray.500'>
+        <Text fontSize='xs' color='gray.500'>
           Page {page}
         </Text>
         <IconButton
@@ -147,33 +146,30 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
           <ModalCloseButton />
           <ModalBody p={4}>
             {active && <Image src={active.url} alt='' maxH='70vh' mx='auto' borderRadius='md' />}
-            <Flex gap={2} mt={4} justify='center' wrap='wrap'>
-              <Button
-                size='sm'
-                leftIcon={<Copy size={16} />}
+            <Flex gap={2} mt={4} justify='center'>
+              <IconButton
+                aria-label='Copy image'
+                title='Copy image'
+                icon={<Copy size={16} />}
                 onClick={() => handleCopy(active)}
                 isDisabled={working}
-              >
-                Copy
-              </Button>
-              <Button
-                size='sm'
-                leftIcon={<Download size={16} />}
+              />
+              <IconButton
+                aria-label='Download image'
+                title='Download image'
+                icon={<Download size={16} />}
                 onClick={() => handleDownload(active)}
                 isDisabled={working}
-              >
-                Download
-              </Button>
-              <Button
-                size='sm'
+              />
+              <IconButton
+                aria-label='Delete image'
+                title='Delete image'
+                icon={<Trash2 size={16} />}
                 colorScheme='red'
                 variant='outline'
-                leftIcon={<Trash2 size={16} />}
                 onClick={() => handleDelete(active)}
                 isLoading={working}
-              >
-                Delete
-              </Button>
+              />
             </Flex>
             <Text fontSize='xs' color='gray.500' mt={2} textAlign='center'>
               {active?.mime}

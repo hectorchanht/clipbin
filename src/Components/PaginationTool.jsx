@@ -19,33 +19,37 @@ const PaginationTool = () => {
   return (
     <Flex align='center' gap={2}>
       <IconButton
+        size='sm'
         aria-label='Previous page'
         title='Previous page'
-        icon={<ArrowLeft size={18} />}
+        icon={<ArrowLeft size={16} />}
         variant='outline'
         isLoading={isLoading.get}
         isDisabled={currentPage <= 1}
         onClick={() => setSetting((d) => ({ ...d, currentPage: d.currentPage - 1 }))}
       />
 
-      <Text fontSize='sm' color='gray.500' whiteSpace='nowrap'>
+      <Text fontSize='xs' color='gray.500' whiteSpace='nowrap'>
         Page {currentPage}
       </Text>
 
       <Select
+        size='sm'
         aria-label='Entries per page'
+        title='Entries per page'
         placeholder={`page size: ${pageSize}`}
         onChange={handleSelectChange}
         value={PAGE_SIZES.includes(pageSize) ? pageSize : ''}
-        maxW='150px'
+        maxW='120px'
       >
         {PAGE_SIZES.map((d) => <option key={d} value={d}>{d}</option>)}
       </Select>
 
       <IconButton
+        size='sm'
         aria-label='Next page'
         title='Next page'
-        icon={<ArrowRight size={18} />}
+        icon={<ArrowRight size={16} />}
         variant='outline'
         isDisabled={!hasMore}
         isLoading={isLoading.get}

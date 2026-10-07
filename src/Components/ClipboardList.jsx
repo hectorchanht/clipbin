@@ -1,5 +1,5 @@
-import { Button, Grid, GridItem, IconButton, Skeleton, Text, Textarea } from '@chakra-ui/react';
-import { Copy, Trash2 } from 'lucide-react';
+import { Flex, Grid, GridItem, IconButton, Skeleton, Text, Textarea } from '@chakra-ui/react';
+import { Check, Copy, Trash2, X } from 'lucide-react';
 import React from 'react';
 import useClipboard from '../libs/useClipboard';
 import { deleteData, patchData, useData } from '../libs/fns';
@@ -7,10 +7,10 @@ import { deleteData, patchData, useData } from '../libs/fns';
 const LocalGrid = ({ children, ...rest }) => (
   <Grid
     templateColumns='repeat(6, 1fr)'
-    gap={3}
+    gap={2}
     alignItems={'center'}
     textAlign={'left'}
-    mt={4}
+    mt={1}
     {...rest}
   >
     {children}
@@ -22,13 +22,13 @@ const RenderLoadingData = (props) => (
     {[...Array(5)].map((_, i) => (
       <React.Fragment key={i}>
         <GridItem colSpan={1}>
-          <Skeleton height='50px' width={'60px'} />
+          <Skeleton height='40px' width={'60px'} />
         </GridItem>
         <GridItem colSpan={1}>
-          <Skeleton height='50px' width={'60px'} />
+          <Skeleton height='40px' width={'60px'} />
         </GridItem>
         <GridItem colSpan={4}>
-          <Skeleton height='80px' />
+          <Skeleton height='64px' />
         </GridItem>
       </React.Fragment>))}
   </LocalGrid>
@@ -109,6 +109,7 @@ const ClipboardRow = ({ entry }) => {
       </GridItem>
       <GridItem colSpan={4}>
         <Textarea
+          size='sm'
           value={isEditing ? draft : entry.val}
           isReadOnly={!isEditing}
           onChange={isEditing ? (e) => setDraft(e.target.value) : undefined}
@@ -117,14 +118,26 @@ const ClipboardRow = ({ entry }) => {
           {formatDate(entry.created_at)}
         </Text>
         {isEditing && isDirty && (
-          <Grid templateColumns='repeat(2, 1fr)' gap={2} mt={2}>
-            <Button size='sm' colorScheme='teal' isLoading={saving} onClick={handleSaveEdit}>
-              Save
-            </Button>
-            <Button size='sm' variant='ghost' isDisabled={saving} onClick={handleCancelEdit}>
-              Cancel
-            </Button>
-          </Grid>
+          <Flex gap={2} mt={2}>
+            <IconButton
+              size='sm'
+              colorScheme='teal'
+              aria-label='Save edit'
+              title='Save edit'
+              icon={<Check size={16} />}
+              isLoading={saving}
+              onClick={handleSaveEdit}
+            />
+            <IconButton
+              size='sm'
+              variant='ghost'
+              aria-label='Cancel edit'
+              title='Cancel edit'
+              icon={<X size={16} />}
+              isDisabled={saving}
+              onClick={handleCancelEdit}
+            />
+          </Flex>
         )}
       </GridItem>
     </React.Fragment>
@@ -141,7 +154,7 @@ const ClipboardList = () => {
   if (data.length === 0) {
     return (
       <Text color='gray.500' mt={8}>
-        Nothing here yet — type anything above and it saves automatically, or tap Save Clipboard.
+        Nothing here yet — type above and it saves when you tap away, or tap the clipboard icon to save what&apos;s on your clipboard.
       </Text>
     );
   }

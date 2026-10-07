@@ -16,10 +16,12 @@ import {
   ModalOverlay,
   Text,
 } from '@chakra-ui/react';
-import { Check, Ellipsis, Pencil, Trash2 } from 'lucide-react';
+import { Check, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
+import { useAtom } from 'jotai';
 import React from 'react';
-import { api } from '../libs/apiClient';
+import { api, checkBackend } from '../libs/apiClient';
 import { useData } from '../libs/fns';
+import { authModalOpenAtom, userAtom } from '../libs/states';
 
 // Lucide dropped brand icons — keep the GitHub mark as a tiny inline SVG.
 const GithubIcon = (props) => (
@@ -32,15 +34,35 @@ const GithubIcon = (props) => (
 );
 
 /**
- * The "⋯" menu in the header. Hides the less-frequent operations
- * (edit mode, delete-all) so the main column stays clean, and hosts
- * the GitHub source link.
+ * The "⋯" menu in the header. Hosts sign in/out (magic link lives here
+ * now, not in the main column), edit mode, delete-all, and the GitHub
+ * source link — keeping the main column clean.
  */
 const HeaderMoreMenu = () => {
-  const { data, setData, setting, setSetting, userId, toastError, toastSuccess } = useData();
+  const { data, setData, setting, setSetting, setIsLoading, user, userId, toastError, toastSuccess, updateData } = useData();
+  const [, setUser] = useAtom(userAtom);
+  const [, setAuthOpen] = useAtom(authModalOpenAtom);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [backend, setBackend] = React.useState(null);
+
+  React.useEffect(() => {
+    checkBackend().then(setBackend);
+  }, []);
 
   const toggleEdit = () => setSetting((d) => ({ ...d, isEditing: !d.isEditing }));
+
+  const handleLogout = async () => {
+    setIsLoading((d) => ({ ...d, auth: true }));
+    try {
+      await api('/auth/logout', { method: 'POST' });
+    } catch (e) {
+      toastError(e.message);
+    } finally {
+      setUser(null);
+      updateData();
+      setIsLoading((d) => ({ ...d, auth: false }));
+    }
+  };
 
   const handleClearData = async () => {
     try {
@@ -67,12 +89,26 @@ const HeaderMoreMenu = () => {
       <Menu>
         <MenuButton
           as={IconButton}
+          size='sm'
           aria-label='More options'
           title='More options'
-          icon={<Ellipsis size={20} />}
+          icon={<Ellipsis size={18} />}
           variant='ghost'
         />
         <MenuList>
+          {backend !== false && (user?.id ? (
+            <MenuItem icon={<LogOut size={16} />} onClick={handleLogout}>
+              <Flex w='100%' justify='space-between' align='center' gap={6}>
+                <Text>Sign out</Text>
+                <Text fontSize='xs' color='gray.500' noOfLines={1} maxW='180px'>{user.email}</Text>
+              </Flex>
+            </MenuItem>
+          ) : (
+            <MenuItem icon={<LogIn size={16} />} onClick={() => setAuthOpen(true)}>
+              Sign in
+            </MenuItem>
+          ))}
+          {backend !== false && <MenuDivider />}
           <MenuItem
             icon={<Pencil size={16} />}
             onClick={toggleEdit}

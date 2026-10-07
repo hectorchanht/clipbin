@@ -1,29 +1,23 @@
+import { IconButton, IconButtonProps, useColorMode, useColorModeValue } from "@chakra-ui/react"
+import { Moon, Sun } from "lucide-react"
 import * as React from "react"
-import {
-  useColorMode,
-  useColorModeValue,
-  IconButton,
-  IconButtonProps,
-} from "@chakra-ui/react"
-import { FaMoon, FaSun } from "react-icons/fa"
 
 type ColorModeSwitcherProps = Omit<IconButtonProps, "aria-label">
 
+/** Header theme toggle — icon only, no text label needed. */
 export const ColorModeSwitcher: React.FC<ColorModeSwitcherProps> = (props) => {
   const { toggleColorMode } = useColorMode()
-  const text = useColorModeValue("dark", "light")
-  const SwitchIcon = useColorModeValue(FaMoon, FaSun)
+  const label = useColorModeValue("Switch to dark mode", "Switch to light mode")
+  const SwitchIcon = useColorModeValue(Moon, Sun)
 
   return (
     <IconButton
-      size="md"
-      fontSize="lg"
+      size="sm"
       variant="ghost"
-      color="current"
-      marginLeft="2"
       onClick={toggleColorMode}
-      icon={<SwitchIcon />}
-      aria-label={`Switch to ${text} mode`}
+      icon={<SwitchIcon size={20} />}
+      aria-label={label}
+      title={label}
       {...props}
     />
   )
