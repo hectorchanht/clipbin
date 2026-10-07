@@ -1,4 +1,4 @@
-import { MinusIcon } from '@chakra-ui/icons';
+import { ChevronUpIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Icon, Input, Text } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 import React from 'react';
@@ -114,7 +114,7 @@ export default function Auth() {
     return (
       <Flex justifyContent={'space-between'} my={4}>
         <Button variant='ghost' onClick={toggleAuthHidden} aria-label='Hide login' title='Hide login'>
-          <MinusIcon />
+          <ChevronUpIcon />
         </Button>
 
         <Button
@@ -143,7 +143,7 @@ export default function Auth() {
       />
       <Flex justifyContent={'space-between'} alignItems={'center'}>
         <Button variant='ghost' onClick={toggleAuthHidden} aria-label='Hide login' title='Hide login'>
-          <MinusIcon />
+          <ChevronUpIcon />
         </Button>
         <Button
           isLoading={sending || isLoading.auth}

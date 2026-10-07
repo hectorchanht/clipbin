@@ -1,4 +1,4 @@
-import { MinusIcon, SettingsIcon } from '@chakra-ui/icons';
+import { ChevronUpIcon, SettingsIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 import React from 'react';
@@ -68,7 +68,7 @@ const Toolbar = () => {
           aria-label='Hide settings'
           title='Hide settings'
         >
-          <MinusIcon />
+          <ChevronUpIcon />
         </Button>
         <DeleteBtn />
         <IsEditingBtn />
