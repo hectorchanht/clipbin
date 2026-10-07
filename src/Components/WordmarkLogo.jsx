@@ -8,9 +8,10 @@ import React from 'react';
  * a hand-drawn wavy underline and a little sparkle. Wiggles on hover.
  */
 const WordmarkLogo = () => {
-  const gradFrom = useColorModeValue('#0d9488', '#5eead4');
-  const gradTo = useColorModeValue('#0891b2', '#22d3ee');
-  const sticker = useColorModeValue('#134e4a', 'rgba(255,255,255,0.95)');
+  // Purple like the balloon-paperclip logo mark.
+  const gradFrom = useColorModeValue('#7c3aed', '#a78bfa');
+  const gradTo = useColorModeValue('#a855f7', '#e879f9');
+  const sticker = useColorModeValue('#4c1d95', 'rgba(255,255,255,0.95)');
   const sparkle = '#fbbf24';
   const gradId = 'cb-wordmark-grad';
 
