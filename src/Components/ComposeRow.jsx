@@ -169,7 +169,7 @@ const ComposeRow = () => {
           aria-label='Save clipboard'
           title='Save clipboard contents'
           icon={<ClipboardPaste size={16} />}
-          colorScheme='teal'
+          variant='holdrPrimary'
           onClick={handleSaveClipboard}
           isLoading={isLoading.post}
           flexShrink={0}
@@ -180,7 +180,7 @@ const ComposeRow = () => {
       <Flex align='center' gap={1.5} mt={1.5} color='gray.500'>
         <ClipboardPaste size={13} color='currentColor' style={{ flexShrink: 0 }} />
         <Text fontSize='xs'>
-          Just copied something? Tap the clipboard button — it saves whatever's on your
+          Just copied something? Tap the clipboard button — it saves whatever&apos;s on your
           clipboard right now. No need to paste it first.
         </Text>
       </Flex>

@@ -124,7 +124,7 @@ function AuthModal() {
                 aria-label='Send magic link'
                 title='Send magic link'
                 icon={<Send size={18} />}
-                colorScheme='teal'
+                variant='holdrPrimary'
                 isLoading={sending || isLoading.auth}
                 isDisabled={!emailValid}
                 flexShrink={0}

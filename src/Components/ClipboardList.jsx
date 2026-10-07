@@ -91,7 +91,7 @@ const ClipboardRow = ({ entry }) => {
           title='Copy to clipboard'
           icon={<Copy size={16} />}
           size='sm'
-          variant='ghost'
+          variant='holdr'
           onClick={() => copyToClipboard(entry.val)}
         />
       </GridItem>
@@ -101,8 +101,7 @@ const ClipboardRow = ({ entry }) => {
           title='Delete entry'
           icon={<Trash2 size={16} />}
           size='sm'
-          variant='ghost'
-          colorScheme='red'
+          variant='holdrDanger'
           onClick={handleDelete}
           isLoading={isLoading.delete}
         />
@@ -121,7 +120,7 @@ const ClipboardRow = ({ entry }) => {
           <Flex gap={2} mt={2}>
             <IconButton
               size='sm'
-              colorScheme='teal'
+              variant='holdrPrimary'
               aria-label='Save edit'
               title='Save edit'
               icon={<Check size={16} />}
@@ -130,7 +129,7 @@ const ClipboardRow = ({ entry }) => {
             />
             <IconButton
               size='sm'
-              variant='ghost'
+              variant='holdr'
               aria-label='Cancel edit'
               title='Cancel edit'
               icon={<X size={16} />}

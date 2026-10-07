@@ -12,7 +12,75 @@ import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { useDataLoader, useSettingsSync } from './libs/fns';
 import { useAuthSession } from './libs/useAuthSession';
 
-const theme = extendTheme({ config: { initialColorMode: "dark", useSystemColorMode: true } });
+/**
+ * Holdr-style button variants: bordered icon buttons with hover tooltips
+ * (like Holdr's headerBtn), plus an emerald solid primary.
+ */
+const holdrBtn = (props: any) =>
+  props.colorMode === 'dark'
+    ? {
+        border: '1px solid #3f3f46',
+        bg: '#27272a',
+        color: '#d4d4d8',
+        borderRadius: '0.5rem',
+        _hover: { bg: '#3f3f46', _disabled: { bg: '#27272a' } },
+        _active: { bg: '#52525b' },
+      }
+    : {
+        border: '1px solid #d4d4d8',
+        bg: '#e4e4e7',
+        color: '#3f3f46',
+        borderRadius: '0.5rem',
+        _hover: { bg: '#d4d4d8', _disabled: { bg: '#e4e4e7' } },
+        _active: { bg: '#a1a1aa' },
+      };
+
+const holdrDanger = (props: any) =>
+  props.colorMode === 'dark'
+    ? {
+        border: '1px solid #7f1d1d',
+        bg: '#27272a',
+        color: '#f87171',
+        borderRadius: '0.5rem',
+        _hover: { bg: '#3f3f46', _disabled: { bg: '#27272a' } },
+        _active: { bg: '#52525b' },
+      }
+    : {
+        border: '1px solid #fecaca',
+        bg: '#fef2f2',
+        color: '#dc2626',
+        borderRadius: '0.5rem',
+        _hover: { bg: '#fee2e2', _disabled: { bg: '#fef2f2' } },
+        _active: { bg: '#fecaca' },
+      };
+
+const holdrPrimary = () => ({
+  bg: '#059669',
+  color: '#fff',
+  borderRadius: '0.5rem',
+  _hover: { bg: '#10b981', _disabled: { bg: '#059669' } },
+  _active: { bg: '#047857' },
+});
+
+const theme = extendTheme({
+  config: { initialColorMode: "dark", useSystemColorMode: true },
+  styles: {
+    global: (props: any) => ({
+      body: {
+        bg: props.colorMode === 'dark' ? '#09090b' : '#ffffff',
+        color: props.colorMode === 'dark' ? '#f4f4f5' : '#18181b',
+      },
+    }),
+  },
+  components: {
+    IconButton: {
+      variants: { holdr: holdrBtn, holdrDanger, holdrPrimary },
+    },
+    Button: {
+      variants: { holdr: holdrBtn, holdrDanger, holdrPrimary },
+    },
+  },
+});
 
 // Mounted once inside ChakraProvider: runs the single global data fetch
 // and keeps settings in sync (load on login change, auto-save on edit).
@@ -24,7 +92,7 @@ const DataLoader = () => {
 
 const AppHeader = () => {
   return (
-    <Flex as={'header'} align='center' gap={1} mt={0.5} mb={0.5}>
+    <Flex as={'header'} align='center' gap={2} mt={0.5} mb={0.5}>
       <WordmarkLogo />
       <Spacer />
       <ColorModeSwitcher />

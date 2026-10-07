@@ -89,19 +89,16 @@ const PostImage = () => {
         saveFiles(e.dataTransfer?.files);
       }}
     >
-      <Text fontWeight='semibold' fontSize='sm'>
+      <Text fontWeight='semibold' fontSize='sm' title='Paste, drop, or upload images'>
         Images
-      </Text>
-      <Text fontSize='xs' color='gray.500' ml={2}>
-        paste · drop · upload
       </Text>
       <Spacer />
       <IconButton
         size='sm'
         aria-label='Upload images'
-        title='Upload images'
+        title='Upload images — you can also paste or drop them anywhere'
         icon={<ImagePlus size={16} />}
-        variant='ghost'
+        variant='holdr'
         isLoading={busy}
         onClick={() => inputRef.current?.click()}
       />

@@ -23,7 +23,7 @@ const PaginationTool = () => {
         aria-label='Previous page'
         title='Previous page'
         icon={<ArrowLeft size={16} />}
-        variant='outline'
+        variant='holdr'
         isLoading={isLoading.get}
         isDisabled={currentPage <= 1}
         onClick={() => setSetting((d) => ({ ...d, currentPage: d.currentPage - 1 }))}
@@ -50,7 +50,7 @@ const PaginationTool = () => {
         aria-label='Next page'
         title='Next page'
         icon={<ArrowRight size={16} />}
-        variant='outline'
+        variant='holdr'
         isDisabled={!hasMore}
         isLoading={isLoading.get}
         onClick={() => setSetting((d) => ({ ...d, currentPage: d.currentPage + 1 }))}

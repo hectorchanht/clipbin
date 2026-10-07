@@ -119,7 +119,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
       <Flex justify='space-between' align='center' mt={1}>
         <IconButton
           size='sm'
-          variant='outline'
+          variant='holdr'
           aria-label='Previous page'
           title='Previous page'
           icon={<ArrowLeft size={16} />}
@@ -131,7 +131,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
         </Text>
         <IconButton
           size='sm'
-          variant='outline'
+          variant='holdr'
           aria-label='Next page'
           title='Next page'
           icon={<ArrowRight size={16} />}
@@ -151,6 +151,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
                 aria-label='Copy image'
                 title='Copy image'
                 icon={<Copy size={16} />}
+                variant='holdr'
                 onClick={() => handleCopy(active)}
                 isDisabled={working}
               />
@@ -158,6 +159,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
                 aria-label='Download image'
                 title='Download image'
                 icon={<Download size={16} />}
+                variant='holdr'
                 onClick={() => handleDownload(active)}
                 isDisabled={working}
               />
@@ -165,8 +167,7 @@ const ImageList = ({ items, loading, page, hasMore, onPrev, onNext }) => {
                 aria-label='Delete image'
                 title='Delete image'
                 icon={<Trash2 size={16} />}
-                colorScheme='red'
-                variant='outline'
+                variant='holdrDanger'
                 onClick={() => handleDelete(active)}
                 isLoading={working}
               />

@@ -93,7 +93,7 @@ const HeaderMoreMenu = () => {
           aria-label='More options'
           title='More options'
           icon={<Ellipsis size={18} />}
-          variant='ghost'
+          variant='holdr'
         />
         <MenuList>
           {backend !== false && (user?.id ? (
