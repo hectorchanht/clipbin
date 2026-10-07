@@ -1,4 +1,4 @@
-import { ChakraProvider, Container, extendTheme, Flex, Heading, Image, Spacer, Stack, useColorModeValue } from "@chakra-ui/react";
+import { ChakraProvider, Container, extendTheme, Flex, Spacer, Stack } from "@chakra-ui/react";
 import * as React from "react";
 import Auth from "./Components/Auth";
 import ClipboardList from "./Components/ClipboardList";
@@ -7,6 +7,7 @@ import HeaderMoreMenu from "./Components/HeaderMoreMenu";
 import ImageSection from "./Components/ImageSection";
 import PaginationTool from "./Components/PaginationTool";
 import PostImage from "./Components/PostImage";
+import WordmarkLogo from "./Components/WordmarkLogo";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { useDataLoader, useSettingsSync } from './libs/fns';
 import { useAuthSession } from './libs/useAuthSession';
@@ -22,20 +23,9 @@ const DataLoader = () => {
 };
 
 const AppHeader = () => {
-  const gradient = useColorModeValue('linear(to-r, teal.600, cyan.600)', 'linear(to-r, teal.200, cyan.400)');
   return (
     <Flex as={'header'} align='center' gap={1} mt={0.5} mb={0.5}>
-      <Image src='/logo.png' alt='Clipbin logo' boxSize='28px' borderRadius='md' />
-      <Heading
-        as='h1'
-        fontSize='lg'
-        fontWeight='extrabold'
-        letterSpacing='tight'
-        bgGradient={gradient}
-        bgClip='text'
-      >
-        Clipbin
-      </Heading>
+      <WordmarkLogo />
       <Spacer />
       <ColorModeSwitcher />
       <HeaderMoreMenu />

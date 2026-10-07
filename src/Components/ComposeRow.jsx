@@ -176,6 +176,15 @@ const ComposeRow = () => {
         />
       </Flex>
 
+      {/* One-line teaching hint: the icon button grabs the OS clipboard. */}
+      <Flex align='center' gap={1.5} mt={1.5} color='gray.500'>
+        <ClipboardPaste size={13} color='currentColor' style={{ flexShrink: 0 }} />
+        <Text fontSize='xs'>
+          Just copied something? Tap the clipboard button — it saves whatever's on your
+          clipboard right now. No need to paste it first.
+        </Text>
+      </Flex>
+
       {status !== 'idle' && (
         <Flex justify='flex-end' mt={1}>
           <Text fontSize='xs' color={statusColor}>
