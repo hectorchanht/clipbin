@@ -30,7 +30,7 @@ The app works out of the box with no credentials (local-only mode). Cloud sync r
 1. Create a D1 database and apply `d1/migrations/0001_init.sql` via the D1 dashboard console (Pages git integration does not auto-run migrations)
 2. Create a private R2 bucket
 3. In the Pages project → Settings → Functions, add bindings: D1 as `DB`, R2 as `IMAGES`
-4. In Settings → Environment variables, add secret `RESEND_API_KEY` (Resend, sending access) and optional plain var `MAGIC_LINK_FROM` (e.g. `Clipbin <login@yourdomain.com>` — the domain must be verified in Resend)
+4. In Settings → Environment variables, add secret `RESEND_API_KEY` (Resend, sending access) and optional plain var `MAGIC_LINK_FROM` (e.g. `Clipbin <hello@clipbin.lol>` — the domain must be verified in Resend)
 
 Auth is passwordless: the app POSTs the email to `/api/auth/magic-link`, the Function creates a single-use 15-minute token and emails it via Resend; the SPA redeems it at `/api/auth/verify` and gets an httpOnly session cookie. Rate limits (3 per email / 10 min) are enforced in D1.
 
@@ -72,3 +72,8 @@ d1/
 ```
 
 See [logic.md](./logic.md) for the original backend design notes.
+
+## Contact
+
+- Site: https://clipbin.lol
+- hello@clipbin.lol
