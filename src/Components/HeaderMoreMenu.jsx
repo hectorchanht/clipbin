@@ -39,8 +39,8 @@ const GithubIcon = (props) => (
 /**
  * The "⋯" menu in the header. Hosts sign in/out (magic link lives here
  * now, not in the main column), edit mode, delete-all, the supporter
- * section (tip-jar key verification + sponsored-strip toggle), and the
- * GitHub source link — keeping the main column clean.
+ * section (tip-jar key verification + sponsored-strip toggle + ☕ badge),
+ * and the GitHub source link — keeping the main column clean.
  */
 const HeaderMoreMenu = () => {
   const { data, setData, setting, setSetting, setIsLoading, user, userId, toastError, toastSuccess, updateData } = useData();
@@ -57,6 +57,9 @@ const HeaderMoreMenu = () => {
   const [copied, setCopied] = React.useState(false);
   const [isVerified, setIsVerified] = React.useState(false);
   const [hideStrip, setHideStrip] = React.useState(false);
+  // Supporter badge in the ⋯ menu — one of the two supporter unlocks
+  // (the other is the sponsored-strip toggle). Nothing else is gated.
+  const [supporter, setSupporterState] = React.useState(() => isSupporter());
 
   React.useEffect(() => {
     checkBackend().then(setBackend);
@@ -99,6 +102,7 @@ const HeaderMoreMenu = () => {
 
   const openSponsoredModal = () => {
     setIsVerified(isSupporter());
+    setSupporterState(isSupporter());
     setHideStrip(isSponsoredHidden());
     setLicenseKey(getStoredTipKey()); // pre-fill the stored key, if any
     setVerifyError('');
@@ -118,6 +122,7 @@ const HeaderMoreMenu = () => {
       const res = await api('/verify-tip', { method: 'POST', body: { licenseKey: key } });
       if (res && res.ok) {
         setSupporter(); // dawn_supporter="1" — the strip stays visible until the user hides it
+        setSupporterState(true); // show the ☕ badge in the ⋯ menu
         setStoredTipKey(key); // keep the key for pre-fill + copy/reuse
         setLicenseKey(key);
         setIsVerified(true);
@@ -217,7 +222,10 @@ const HeaderMoreMenu = () => {
             <Text color='red.400'>Delete all</Text>
           </MenuItem>
           <MenuItem icon={<BadgeCheck size={16} />} onClick={openSponsoredModal}>
-            Supporter
+            <Flex w='100%' justify='space-between' align='center' gap={6}>
+              <Text>Supporter</Text>
+              {supporter && <Text title='You are a supporter'>☕</Text>}
+            </Flex>
           </MenuItem>
           <MenuDivider />
           <MenuItem
