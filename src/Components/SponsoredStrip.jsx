@@ -1,7 +1,7 @@
-import { Button, Flex, IconButton, Text } from '@chakra-ui/react';
-import { X } from 'lucide-react';
+import { Button, Flex, Text } from '@chakra-ui/react';
 import React from 'react';
 import {
+  SPONSORED_HIDDEN_EVENT,
   hasAiraloLink,
   hasAirwallexLink,
   hasBinanceLink,
@@ -9,36 +9,29 @@ import {
   hasKoinlyLink,
   hasTipJarLink,
   hasWiseLink,
+  isSponsoredHidden,
   sponsoredLinks,
 } from '../libs/sponsored';
 
 /**
- * localStorage flag that hides the strip. Honor system for tippers —
- * no license verification, just a quiet dismiss.
- */
-const HIDDEN_KEY = 'dawn_sponsored_hidden';
-
-/**
  * Slim moneyrate-style sponsored strip: the first content block under the
  * app header. One row, horizontally scrollable on narrow screens (no
- * clipped buttons), tiny uppercase disclosure label, brand-colored slots,
- * and a subtle dismiss for tippers.
+ * clipped buttons), tiny uppercase disclosure label, brand-colored slots.
+ *
+ * Renders nothing when localStorage dawn_sponsored_hidden === '1' — that
+ * flag is set only after the tip-jar license key is verified (header ⋯
+ * menu → "Sponsored strip"). No honor-system dismiss button anymore.
  *
  * A slot renders only when its URL is set in ../libs/sponsored.
  */
 const SponsoredStrip = () => {
-  const [hidden, setHidden] = React.useState(false);
+  const [hidden, setHidden] = React.useState(isSponsoredHidden());
 
   React.useEffect(() => {
-    if (typeof window !== 'undefined' && window.localStorage.getItem(HIDDEN_KEY) === '1') {
-      setHidden(true);
-    }
+    const sync = () => setHidden(isSponsoredHidden());
+    window.addEventListener(SPONSORED_HIDDEN_EVENT, sync);
+    return () => window.removeEventListener(SPONSORED_HIDDEN_EVENT, sync);
   }, []);
-
-  const hide = () => {
-    window.localStorage.setItem(HIDDEN_KEY, '1');
-    setHidden(true);
-  };
 
   if (hidden) return null;
 
@@ -172,17 +165,6 @@ const SponsoredStrip = () => {
           {s.label}
         </Button>
       ))}
-      <IconButton
-        icon={<X size={14} />}
-        size='xs'
-        variant='ghost'
-        flexShrink={0}
-        aria-label='Hide the sponsored strip'
-        title='Tipped? Hide the sponsored strip'
-        opacity={0.45}
-        _hover={{ opacity: 1 }}
-        onClick={hide}
-      />
     </Flex>
   );
 };

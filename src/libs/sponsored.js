@@ -25,3 +25,23 @@ export const hasBinanceLink = () => Boolean(sponsoredLinks.binance);
 export const hasAiraloLink = () => Boolean(sponsoredLinks.airalo);
 export const hasKoinlyLink = () => Boolean(sponsoredLinks.koinly);
 export const hasAirwallexLink = () => Boolean(sponsoredLinks.airwallex);
+
+/**
+ * localStorage flag that hides the strip. Set only after the tip-jar
+ * license key is verified (header ⋯ menu → "Sponsored strip") — the strip
+ * renders nothing while this is "1". No honor-system dismiss.
+ */
+export const SPONSORED_HIDDEN_KEY = 'dawn_sponsored_hidden';
+
+/** Custom window event fired whenever the hidden flag changes. */
+export const SPONSORED_HIDDEN_EVENT = 'dawn:sponsored-hidden';
+
+export const isSponsoredHidden = () =>
+  typeof window !== 'undefined' && window.localStorage.getItem(SPONSORED_HIDDEN_KEY) === '1';
+
+export const setSponsoredHidden = (hidden) => {
+  if (typeof window === 'undefined') return;
+  if (hidden) window.localStorage.setItem(SPONSORED_HIDDEN_KEY, '1');
+  else window.localStorage.removeItem(SPONSORED_HIDDEN_KEY);
+  window.dispatchEvent(new CustomEvent(SPONSORED_HIDDEN_EVENT));
+};

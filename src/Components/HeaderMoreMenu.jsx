@@ -3,6 +3,7 @@ import {
   Flex,
   Icon,
   IconButton,
+  Input,
   Menu,
   MenuButton,
   MenuDivider,
@@ -16,11 +17,12 @@ import {
   ModalOverlay,
   Text,
 } from '@chakra-ui/react';
-import { Check, Coffee, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
+import { BadgeCheck, Check, Coffee, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { api, checkBackend } from '../libs/apiClient';
 import { useData } from '../libs/fns';
+import { isSponsoredHidden, setSponsoredHidden } from '../libs/sponsored';
 import { authModalOpenAtom, userAtom } from '../libs/states';
 
 // Lucide dropped brand icons — keep the GitHub mark as a tiny inline SVG.
@@ -35,8 +37,8 @@ const GithubIcon = (props) => (
 
 /**
  * The "⋯" menu in the header. Hosts sign in/out (magic link lives here
- * now, not in the main column), edit mode, delete-all, and the GitHub
- * source link — keeping the main column clean.
+ * now, not in the main column), edit mode, delete-all, the sponsored-strip
+ * verification, and the GitHub source link — keeping the main column clean.
  */
 const HeaderMoreMenu = () => {
   const { data, setData, setting, setSetting, setIsLoading, user, userId, toastError, toastSuccess, updateData } = useData();
@@ -44,6 +46,13 @@ const HeaderMoreMenu = () => {
   const [, setAuthOpen] = useAtom(authModalOpenAtom);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [backend, setBackend] = React.useState(null);
+
+  // Sponsored-strip verification modal state.
+  const [sponsoredOpen, setSponsoredOpen] = React.useState(false);
+  const [licenseKey, setLicenseKey] = React.useState('');
+  const [verifying, setVerifying] = React.useState(false);
+  const [verifyError, setVerifyError] = React.useState('');
+  const [stripHidden, setStripHidden] = React.useState(false);
 
   React.useEffect(() => {
     checkBackend().then(setBackend);
@@ -82,6 +91,49 @@ const HeaderMoreMenu = () => {
     } finally {
       setConfirmOpen(false);
     }
+  };
+
+  const openSponsoredModal = () => {
+    setStripHidden(isSponsoredHidden());
+    setLicenseKey('');
+    setVerifyError('');
+    setSponsoredOpen(true);
+  };
+
+  const handleVerifyTip = async () => {
+    const key = licenseKey.trim();
+    if (!key) {
+      setVerifyError('Enter the license key from your Gumroad receipt email.');
+      return;
+    }
+    setVerifying(true);
+    setVerifyError('');
+    try {
+      const res = await api('/verify-tip', { method: 'POST', body: { licenseKey: key } });
+      if (res && res.ok) {
+        setSponsoredHidden(true);
+        setStripHidden(true);
+        setLicenseKey('');
+        toastSuccess('Thanks for tipping — the sponsored strip is hidden.');
+      } else {
+        setVerifyError("That key didn't verify — check the license key in your Gumroad receipt email.");
+      }
+    } catch (e) {
+      setVerifyError(
+        e && e.status === 0
+          ? 'Could not reach the server. Check your connection and try again.'
+          : "That key didn't verify — check the license key in your Gumroad receipt email."
+      );
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleShowAgain = () => {
+    setSponsoredHidden(false);
+    setStripHidden(false);
+    setSponsoredOpen(false);
+    toastSuccess('The sponsored strip is visible again.');
   };
 
   return (
@@ -126,6 +178,9 @@ const HeaderMoreMenu = () => {
           >
             <Text color='red.400'>Delete all</Text>
           </MenuItem>
+          <MenuItem icon={<BadgeCheck size={16} />} onClick={openSponsoredModal}>
+            Sponsored strip
+          </MenuItem>
           <MenuDivider />
           <MenuItem
             as='a'
@@ -164,6 +219,60 @@ const HeaderMoreMenu = () => {
             <Button colorScheme='red' ml={3} onClick={handleClearData}>
               Delete
             </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={sponsoredOpen} onClose={() => setSponsoredOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Sponsored strip</ModalHeader>
+          <ModalBody>
+            {stripHidden ? (
+              <Text>☕ Thanks for tipping — the sponsored strip is hidden.</Text>
+            ) : (
+              <React.Fragment>
+                <Text mb={3}>
+                  Tipped us on Gumroad? Enter the license key from your purchase receipt email to hide the sponsored strip.
+                </Text>
+                <Input
+                  placeholder='Gumroad license key'
+                  value={licenseKey}
+                  onChange={(e) => setLicenseKey(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleVerifyTip(); }}
+                  isDisabled={verifying}
+                  autoComplete='off'
+                  spellCheck={false}
+                />
+                {verifyError && (
+                  <Text color='red.400' fontSize='sm' mt={2}>
+                    {verifyError}
+                  </Text>
+                )}
+              </React.Fragment>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            {stripHidden ? (
+              <Button variant='link' colorScheme='teal' onClick={handleShowAgain}>
+                Show again
+              </Button>
+            ) : (
+              <React.Fragment>
+                <Button variant='ghost' onClick={() => setSponsoredOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  colorScheme='teal'
+                  ml={3}
+                  onClick={handleVerifyTip}
+                  isLoading={verifying}
+                  isDisabled={!licenseKey.trim()}
+                >
+                  Verify
+                </Button>
+              </React.Fragment>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
