@@ -19,8 +19,9 @@ import {
  * clipped buttons), tiny uppercase disclosure label, brand-colored slots.
  *
  * Renders nothing when localStorage dawn_sponsored_hidden === '1' — that
- * flag is set only after the tip-jar license key is verified (header ⋯
- * menu → "Sponsored strip"). No honor-system dismiss button anymore.
+ * flag is set only via the "Hide sponsored strip" toggle (header ⋯ menu →
+ * "Supporter"), after the tip-jar license key is verified. Being a
+ * supporter (dawn_supporter === '1') alone never hides the strip.
  *
  * A slot renders only when its URL is set in ../libs/sponsored.
  */

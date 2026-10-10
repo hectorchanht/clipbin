@@ -15,6 +15,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Switch,
   Text,
 } from '@chakra-ui/react';
 import { BadgeCheck, Check, Coffee, Copy, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
@@ -22,7 +23,7 @@ import { useAtom } from 'jotai';
 import React from 'react';
 import { api, checkBackend } from '../libs/apiClient';
 import { useData } from '../libs/fns';
-import { getStoredTipKey, isSponsoredHidden, setSponsoredHidden, setStoredTipKey } from '../libs/sponsored';
+import { getStoredTipKey, isSponsoredHidden, isSupporter, setSponsoredHidden, setStoredTipKey, setSupporter } from '../libs/sponsored';
 import { authModalOpenAtom, userAtom } from '../libs/states';
 
 // Lucide dropped brand icons — keep the GitHub mark as a tiny inline SVG.
@@ -37,8 +38,9 @@ const GithubIcon = (props) => (
 
 /**
  * The "⋯" menu in the header. Hosts sign in/out (magic link lives here
- * now, not in the main column), edit mode, delete-all, the sponsored-strip
- * verification, and the GitHub source link — keeping the main column clean.
+ * now, not in the main column), edit mode, delete-all, the supporter
+ * section (tip-jar key verification + sponsored-strip toggle), and the
+ * GitHub source link — keeping the main column clean.
  */
 const HeaderMoreMenu = () => {
   const { data, setData, setting, setSetting, setIsLoading, user, userId, toastError, toastSuccess, updateData } = useData();
@@ -47,13 +49,14 @@ const HeaderMoreMenu = () => {
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [backend, setBackend] = React.useState(null);
 
-  // Sponsored-strip verification modal state.
+  // Supporter section modal state.
   const [sponsoredOpen, setSponsoredOpen] = React.useState(false);
   const [licenseKey, setLicenseKey] = React.useState('');
   const [verifying, setVerifying] = React.useState(false);
   const [verifyError, setVerifyError] = React.useState('');
   const [copied, setCopied] = React.useState(false);
-  const [stripHidden, setStripHidden] = React.useState(false);
+  const [isVerified, setIsVerified] = React.useState(false);
+  const [hideStrip, setHideStrip] = React.useState(false);
 
   React.useEffect(() => {
     checkBackend().then(setBackend);
@@ -95,7 +98,8 @@ const HeaderMoreMenu = () => {
   };
 
   const openSponsoredModal = () => {
-    setStripHidden(isSponsoredHidden());
+    setIsVerified(isSupporter());
+    setHideStrip(isSponsoredHidden());
     setLicenseKey(getStoredTipKey()); // pre-fill the stored key, if any
     setVerifyError('');
     setCopied(false);
@@ -113,11 +117,11 @@ const HeaderMoreMenu = () => {
     try {
       const res = await api('/verify-tip', { method: 'POST', body: { licenseKey: key } });
       if (res && res.ok) {
-        setSponsoredHidden(true);
+        setSupporter(); // dawn_supporter="1" — the strip stays visible until the user hides it
         setStoredTipKey(key); // keep the key for pre-fill + copy/reuse
         setLicenseKey(key);
-        setStripHidden(true);
-        toastSuccess('Thanks for tipping — the sponsored strip is hidden.');
+        setIsVerified(true);
+        toastSuccess("☕ Thanks for tipping — you're a supporter now!");
       } else {
         setVerifyError("That key didn't verify — check the license key in your Gumroad receipt email.");
       }
@@ -132,13 +136,12 @@ const HeaderMoreMenu = () => {
     }
   };
 
-  // "Show again" clears only dawn_sponsored_hidden — the stored key stays,
-  // so the input is pre-filled and the key is copyable for reuse.
-  const handleShowAgain = () => {
-    setSponsoredHidden(false);
-    setStripHidden(false);
-    setSponsoredOpen(false);
-    toastSuccess('The sponsored strip is visible again.');
+  // The "Hide sponsored strip" toggle — the only way the hidden flag
+  // gets set now. The stored supporter flag and license key are untouched.
+  const handleToggleHideStrip = (e) => {
+    const on = e.target.checked;
+    setSponsoredHidden(on);
+    setHideStrip(on);
   };
 
   const handleCopyKey = async () => {
@@ -214,7 +217,7 @@ const HeaderMoreMenu = () => {
             <Text color='red.400'>Delete all</Text>
           </MenuItem>
           <MenuItem icon={<BadgeCheck size={16} />} onClick={openSponsoredModal}>
-            Sponsored strip
+            Supporter
           </MenuItem>
           <MenuDivider />
           <MenuItem
@@ -261,13 +264,27 @@ const HeaderMoreMenu = () => {
       <Modal isOpen={sponsoredOpen} onClose={() => setSponsoredOpen(false)}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Sponsored strip</ModalHeader>
+          <ModalHeader>Supporter</ModalHeader>
           <ModalBody>
-            {stripHidden ? (
-              <Text mb={3}>☕ Thanks for tipping — the sponsored strip is hidden.</Text>
+            {isVerified ? (
+              <React.Fragment>
+                <Text mb={3} fontWeight='600'>☕ You&apos;re a supporter — thanks for tipping!</Text>
+                <Flex align='center' justify='space-between' mb={1}>
+                  <Text fontSize='sm'>Hide sponsored strip</Text>
+                  <Switch
+                    isChecked={hideStrip}
+                    onChange={handleToggleHideStrip}
+                    colorScheme='teal'
+                    aria-label='Hide sponsored strip'
+                  />
+                </Flex>
+                <Text fontSize='xs' color='dimmed' mb={3}>
+                  Supporters can hide the strip anytime.
+                </Text>
+              </React.Fragment>
             ) : (
               <Text mb={3}>
-                Tipped us on Gumroad? Enter the license key from your purchase receipt email to hide the sponsored strip.
+                Tipped us on Gumroad? Enter the license key from your purchase receipt email to verify your support.
               </Text>
             )}
             <Flex gap={2} align='center'>
@@ -301,9 +318,9 @@ const HeaderMoreMenu = () => {
             )}
           </ModalBody>
           <ModalFooter>
-            {stripHidden ? (
-              <Button variant='link' colorScheme='teal' onClick={handleShowAgain}>
-                Show again
+            {isVerified ? (
+              <Button variant='ghost' onClick={() => setSponsoredOpen(false)}>
+                Done
               </Button>
             ) : (
               <React.Fragment>

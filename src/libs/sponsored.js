@@ -27,9 +27,10 @@ export const hasKoinlyLink = () => Boolean(sponsoredLinks.koinly);
 export const hasAirwallexLink = () => Boolean(sponsoredLinks.airwallex);
 
 /**
- * localStorage flag that hides the strip. Set only after the tip-jar
- * license key is verified (header ⋯ menu → "Sponsored strip") — the strip
- * renders nothing while this is "1". No honor-system dismiss.
+ * localStorage flag that hides the strip. Set only via the explicit
+ * "Hide sponsored strip" toggle (header ⋯ menu → "Supporter"), available
+ * after the tip-jar license key is verified — the strip renders nothing
+ * while this is "1". Verification alone never sets it.
  */
 export const SPONSORED_HIDDEN_KEY = 'dawn_sponsored_hidden';
 
@@ -44,6 +45,23 @@ export const setSponsoredHidden = (hidden) => {
   if (hidden) window.localStorage.setItem(SPONSORED_HIDDEN_KEY, '1');
   else window.localStorage.removeItem(SPONSORED_HIDDEN_KEY);
   window.dispatchEvent(new CustomEvent(SPONSORED_HIDDEN_EVENT));
+};
+
+/**
+ * localStorage flag marking a verified tip-jar supporter. Set once, right
+ * after the license key verifies — never auto-cleared. The sponsored
+ * strip does NOT hide on this flag alone; hiding needs the explicit
+ * dawn_sponsored_hidden toggle. Reserved for future supporter feature
+ * gating (see isSupporter()).
+ */
+export const SUPPORTER_KEY = 'dawn_supporter';
+
+export const isSupporter = () =>
+  typeof window !== 'undefined' && window.localStorage.getItem(SUPPORTER_KEY) === '1';
+
+export const setSupporter = () => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(SUPPORTER_KEY, '1');
 };
 
 /**
