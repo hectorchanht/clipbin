@@ -1,6 +1,7 @@
 import { Flex, Grid, GridItem, IconButton, Skeleton, Text, Textarea } from '@chakra-ui/react';
 import { Check, Copy, Trash2, X } from 'lucide-react';
 import React from 'react';
+import { track } from '../libs/analytics';
 import useClipboard from '../libs/useClipboard';
 import { deleteData, patchData, useData } from '../libs/fns';
 
@@ -92,7 +93,7 @@ const ClipboardRow = ({ entry }) => {
           icon={<Copy size={16} />}
           size='sm'
           variant='holdr'
-          onClick={() => copyToClipboard(entry.val)}
+          onClick={() => { track('paste_copied'); copyToClipboard(entry.val); }}
         />
       </GridItem>
       <GridItem colSpan={1}>

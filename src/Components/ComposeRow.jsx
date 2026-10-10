@@ -2,6 +2,7 @@ import { Flex, IconButton, Text, Textarea } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 import { ClipboardPaste } from 'lucide-react';
 import React from 'react';
+import { track } from '../libs/analytics';
 import { postData, useData } from '../libs/fns';
 import { postImage } from '../libs/imageStore';
 import { imageVersionAtom } from '../libs/states';
@@ -46,6 +47,7 @@ const ComposeRow = () => {
     setStatus('saving');
     try {
       await postData(val, userIdRef.current);
+      track('paste_created', { method: 'compose', storage: userIdRef.current ? 'cloud' : 'local' });
       // Only clear when the user hasn't typed something new mid-save.
       if (stateRef.current.text === val) setText('');
       // New entries land on page 1 — take the user there to see them.
@@ -73,7 +75,9 @@ const ComposeRow = () => {
       if (val.trim() && !st.saving) {
         st.saving = true;
         st.text = '';
-        postData(val, userIdRef.current).catch(() => {});
+        postData(val, userIdRef.current)
+          .then(() => track('paste_created', { method: 'autosave', storage: userIdRef.current ? 'cloud' : 'local' }))
+          .catch(() => {});
       }
     };
     const onVis = () => { if (document.hidden) flush(); };
@@ -128,6 +132,7 @@ const ComposeRow = () => {
       const clipText = await navigator.clipboard.readText();
       if (clipText.trim()) {
         await postData(clipText, userId);
+        track('paste_created', { method: 'clipboard', storage: userId ? 'cloud' : 'local' });
         // New entries land on page 1 — take the user there to see them.
         setSetting((d) => ({ ...d, currentPage: 1 }));
         updateData();

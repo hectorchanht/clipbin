@@ -21,6 +21,7 @@ import {
 import { BadgeCheck, Check, Coffee, Copy, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
 import { useAtom } from 'jotai';
 import React from 'react';
+import { track } from '../libs/analytics';
 import { api, checkBackend } from '../libs/apiClient';
 import { useData } from '../libs/fns';
 import { getStoredTipKey, isSponsoredHidden, isSupporter, setSponsoredHidden, setStoredTipKey, setSupporter } from '../libs/sponsored';
@@ -101,6 +102,7 @@ const HeaderMoreMenu = () => {
   };
 
   const openSponsoredModal = () => {
+    track('tip_jar_opened', { location: 'supporter_modal' });
     setIsVerified(isSupporter());
     setSupporterState(isSupporter());
     setHideStrip(isSponsoredHidden());
@@ -126,11 +128,15 @@ const HeaderMoreMenu = () => {
         setStoredTipKey(key); // keep the key for pre-fill + copy/reuse
         setLicenseKey(key);
         setIsVerified(true);
+        track('tip_verified', { success: true });
+        track('supporter_status_changed', { is_supporter: true });
         toastSuccess("☕ Thanks for tipping — you're a supporter now!");
       } else {
+        track('tip_verified', { success: false });
         setVerifyError("That key didn't verify — check the license key in your Gumroad receipt email.");
       }
     } catch (e) {
+      track('tip_verified', { success: false });
       setVerifyError(
         e && e.status === 0
           ? 'Could not reach the server. Check your connection and try again.'
@@ -234,6 +240,7 @@ const HeaderMoreMenu = () => {
             target='_blank'
             rel='noopener'
             icon={<Coffee size={16} />}
+            onClick={() => track('tip_jar_opened', { location: 'more_menu' })}
           >
             ☕ Tip jar
           </MenuItem>

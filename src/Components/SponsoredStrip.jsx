@@ -1,5 +1,6 @@
 import { Button, Flex, Text } from '@chakra-ui/react';
 import React from 'react';
+import { track } from '../libs/analytics';
 import {
   SPONSORED_HIDDEN_EVENT,
   hasAiraloLink,
@@ -153,6 +154,7 @@ const SponsoredStrip = () => {
           target='_blank'
           rel={s.rel}
           title={s.title}
+          onClick={s.key === 'tipjar' ? () => track('tip_jar_opened', { location: 'sponsored_strip' }) : undefined}
           size='xs'
           flexShrink={0}
           bg={s.bg}

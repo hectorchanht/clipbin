@@ -3,8 +3,12 @@ import * as React from "react"
 import ReactDOM from "react-dom"
 import { App } from "./App"
 import "./index.css"
+import { initAnalytics } from "./libs/analytics"
 import reportWebVitals from "./reportWebVitals"
 import * as serviceWorker from "./serviceWorker"
+
+// PostHog product analytics — browser-only init (the module guards itself).
+initAnalytics()
 
 const WELCOME_MESSAGE = `
 ██████╗ ██╗   ██╗███████╗██╗  ██╗
