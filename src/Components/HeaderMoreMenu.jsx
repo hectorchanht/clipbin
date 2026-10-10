@@ -16,7 +16,7 @@ import {
   ModalOverlay,
   Text,
 } from '@chakra-ui/react';
-import { Check, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
+import { Check, Coffee, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { api, checkBackend } from '../libs/apiClient';
@@ -127,6 +127,15 @@ const HeaderMoreMenu = () => {
             <Text color='red.400'>Delete all</Text>
           </MenuItem>
           <MenuDivider />
+          <MenuItem
+            as='a'
+            href='https://dawnlimited.gumroad.com/l/clipbin-tip'
+            target='_blank'
+            rel='noopener'
+            icon={<Coffee size={16} />}
+          >
+            ☕ Tip jar
+          </MenuItem>
           <MenuItem
             as='a'
             href='https://github.com/hectorchanht/clipbin'
