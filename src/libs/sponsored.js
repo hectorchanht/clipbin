@@ -45,3 +45,19 @@ export const setSponsoredHidden = (hidden) => {
   else window.localStorage.removeItem(SPONSORED_HIDDEN_KEY);
   window.dispatchEvent(new CustomEvent(SPONSORED_HIDDEN_EVENT));
 };
+
+/**
+ * The user's own tip-jar license key, kept on their own device so the
+ * Settings input can be pre-filled (and copied for reuse on another
+ * device/app). Never sent anywhere except /api/verify-tip on an explicit
+ * Verify click — never auto-submitted.
+ */
+export const TIP_KEY_STORAGE = 'dawn_tip_license_key';
+
+export const getStoredTipKey = () =>
+  typeof window !== 'undefined' ? window.localStorage.getItem(TIP_KEY_STORAGE) || '' : '';
+
+export const setStoredTipKey = (key) => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(TIP_KEY_STORAGE, key);
+};

@@ -17,12 +17,12 @@ import {
   ModalOverlay,
   Text,
 } from '@chakra-ui/react';
-import { BadgeCheck, Check, Coffee, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
+import { BadgeCheck, Check, Coffee, Copy, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { api, checkBackend } from '../libs/apiClient';
 import { useData } from '../libs/fns';
-import { isSponsoredHidden, setSponsoredHidden } from '../libs/sponsored';
+import { getStoredTipKey, isSponsoredHidden, setSponsoredHidden, setStoredTipKey } from '../libs/sponsored';
 import { authModalOpenAtom, userAtom } from '../libs/states';
 
 // Lucide dropped brand icons — keep the GitHub mark as a tiny inline SVG.
@@ -52,6 +52,7 @@ const HeaderMoreMenu = () => {
   const [licenseKey, setLicenseKey] = React.useState('');
   const [verifying, setVerifying] = React.useState(false);
   const [verifyError, setVerifyError] = React.useState('');
+  const [copied, setCopied] = React.useState(false);
   const [stripHidden, setStripHidden] = React.useState(false);
 
   React.useEffect(() => {
@@ -95,8 +96,9 @@ const HeaderMoreMenu = () => {
 
   const openSponsoredModal = () => {
     setStripHidden(isSponsoredHidden());
-    setLicenseKey('');
+    setLicenseKey(getStoredTipKey()); // pre-fill the stored key, if any
     setVerifyError('');
+    setCopied(false);
     setSponsoredOpen(true);
   };
 
@@ -112,8 +114,9 @@ const HeaderMoreMenu = () => {
       const res = await api('/verify-tip', { method: 'POST', body: { licenseKey: key } });
       if (res && res.ok) {
         setSponsoredHidden(true);
+        setStoredTipKey(key); // keep the key for pre-fill + copy/reuse
+        setLicenseKey(key);
         setStripHidden(true);
-        setLicenseKey('');
         toastSuccess('Thanks for tipping — the sponsored strip is hidden.');
       } else {
         setVerifyError("That key didn't verify — check the license key in your Gumroad receipt email.");
@@ -129,11 +132,43 @@ const HeaderMoreMenu = () => {
     }
   };
 
+  // "Show again" clears only dawn_sponsored_hidden — the stored key stays,
+  // so the input is pre-filled and the key is copyable for reuse.
   const handleShowAgain = () => {
     setSponsoredHidden(false);
     setStripHidden(false);
     setSponsoredOpen(false);
     toastSuccess('The sponsored strip is visible again.');
+  };
+
+  const handleCopyKey = async () => {
+    const key = licenseKey.trim();
+    if (!key) return;
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(key);
+      ok = true;
+    } catch {
+      // Clipboard API unavailable (non-secure context) — fallback.
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = key;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch {
+        ok = false;
+      }
+    }
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      toastError('Could not copy — select the key manually.');
+    }
   };
 
   return (
@@ -229,27 +264,40 @@ const HeaderMoreMenu = () => {
           <ModalHeader>Sponsored strip</ModalHeader>
           <ModalBody>
             {stripHidden ? (
-              <Text>☕ Thanks for tipping — the sponsored strip is hidden.</Text>
+              <Text mb={3}>☕ Thanks for tipping — the sponsored strip is hidden.</Text>
             ) : (
-              <React.Fragment>
-                <Text mb={3}>
-                  Tipped us on Gumroad? Enter the license key from your purchase receipt email to hide the sponsored strip.
-                </Text>
-                <Input
-                  placeholder='Gumroad license key'
-                  value={licenseKey}
-                  onChange={(e) => setLicenseKey(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleVerifyTip(); }}
-                  isDisabled={verifying}
-                  autoComplete='off'
-                  spellCheck={false}
-                />
-                {verifyError && (
-                  <Text color='red.400' fontSize='sm' mt={2}>
-                    {verifyError}
-                  </Text>
-                )}
-              </React.Fragment>
+              <Text mb={3}>
+                Tipped us on Gumroad? Enter the license key from your purchase receipt email to hide the sponsored strip.
+              </Text>
+            )}
+            <Flex gap={2} align='center'>
+              <Input
+                placeholder='Gumroad license key'
+                value={licenseKey}
+                onChange={(e) => setLicenseKey(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleVerifyTip(); }}
+                isDisabled={verifying}
+                autoComplete='off'
+                spellCheck={false}
+              />
+              <IconButton
+                aria-label='Copy license key'
+                title='Copy the license key for reuse'
+                icon={copied ? <Check size={16} /> : <Copy size={16} />}
+                onClick={handleCopyKey}
+                isDisabled={!licenseKey.trim()}
+                variant='holdr'
+              />
+            </Flex>
+            {copied && (
+              <Text color='green.400' fontSize='sm' mt={1}>
+                Copied
+              </Text>
+            )}
+            {verifyError && (
+              <Text color='red.400' fontSize='sm' mt={2}>
+                {verifyError}
+              </Text>
             )}
           </ModalBody>
           <ModalFooter>
