@@ -7,6 +7,7 @@ import HeaderMoreMenu from "./Components/HeaderMoreMenu";
 import ImageSection from "./Components/ImageSection";
 import PaginationTool from "./Components/PaginationTool";
 import PostImage from "./Components/PostImage";
+import SponsoredStrip from "./Components/SponsoredStrip";
 import WordmarkLogo from "./Components/WordmarkLogo";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import { useDataLoader, useSettingsSync } from './libs/fns';
@@ -120,6 +121,7 @@ export const App = () => {
       <DataLoader />
       <Container maxW='container.md' px={3} my={1} display={'flex'} flexDirection={'column'} minH={'100vh'}>
         <AppHeader />
+        <SponsoredStrip />
         <Auth />
 
         <Stack spacing={1.5} mt={1} flex={1}>
