@@ -84,10 +84,11 @@ export function isValidEmail(email) {
 }
 
 export async function sendMagicLinkEmail(env, to, link) {
-  // Default From: the apex hectorchan.com is the freshly-verified Resend entry
-  // (the mail.hectorchan.com subdomain shows Verified in the dashboard but the
-  // API rejects it). env.MAGIC_LINK_FROM still overrides when set.
-  const from = env.MAGIC_LINK_FROM || 'Clipbin <login@hectorchan.com>';
+  // Default From: Clipbin sends from its OWN domain (standing rule, Hector
+  // 2026-10-20: every app sends from its own domain). clipbin.lol is verified
+  // in the realufo Resend account; the sending key + this From both live on
+  // the Pages project. env.MAGIC_LINK_FROM still overrides when set.
+  const from = env.MAGIC_LINK_FROM || 'Clipbin <login@clipbin.lol>';
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
