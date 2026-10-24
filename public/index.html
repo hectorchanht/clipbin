@@ -25,17 +25,24 @@
   <meta name="title" content="Clipbin — your private clipboard" />
   <meta name="description" content="🤑Your private clipboard on cloud for FREE 🤑" />
 
+  <link rel="canonical" href="https://clipbin.lol/" />
+  <meta name="robots" content="index,follow" />
+
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://clipbin.hectorchan.com/" />
+  <meta property="og:url" content="https://clipbin.lol/" />
   <meta property="og:title" content="Clipbin — your private clipboard" />
   <meta property="og:description" content="🤑Your private clipboard on cloud for FREE 🤑" />
-  <meta property="og:image" content="https://clipbin.hectorchan.com/logo512.png" />
+  <meta property="og:image" content="https://clipbin.lol/logo512.png" />
 
   <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://clipbin.hectorchan.com/" />
+  <meta property="twitter:url" content="https://clipbin.lol/" />
   <meta property="twitter:title" content="Clipbin — your private clipboard" />
   <meta property="twitter:description" content="🤑Your private clipboard on cloud for FREE 🤑" />
-  <meta property="twitter:image" content="https://clipbin.hectorchan.com/logo512.png" />
+  <meta property="twitter:image" content="https://clipbin.lol/logo512.png" />
+
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Clipbin","url":"https://clipbin.lol/","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Your private clipboard on cloud or local for FREE"}
+  </script>
 
   <link rel="icon" type="image/png" href="/favicon-32.png" />
 </head>
@@ -53,6 +60,13 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/sw.js").catch(function () {});
+      });
+    }
+  </script>
 </body>
 
 </html>
