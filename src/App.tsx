@@ -1,4 +1,4 @@
-import { ChakraProvider, Container, extendTheme, Flex, Spacer, Stack } from "@chakra-ui/react";
+import { Box, ChakraProvider, Container, extendTheme, Flex, Link, Spacer, Stack, Text } from "@chakra-ui/react";
 import * as React from "react";
 import Auth from "./Components/Auth";
 import ClipboardList from "./Components/ClipboardList";
@@ -131,6 +131,14 @@ export const App = () => {
           <PaginationTool />
           <ClipboardList />
         </Stack>
+
+        <Box as='footer' py={4} textAlign='center'>
+          <Text fontSize='xs' color='dimmed'>
+            <Link href='https://dawnstudio.app/#manifesto' isExternal>
+              {"Dawn's apps are built by one creator, for himself first and for everyone, free — no ads, no data selling, basics free forever."}
+            </Link>
+          </Text>
+        </Box>
       </Container>
     </ChakraProvider>
   );
