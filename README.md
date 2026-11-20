@@ -77,3 +77,9 @@ See [logic.md](./logic.md) for the original backend design notes.
 
 - Site: https://clipbin.lol
 - hello@clipbin.lol
+
+## Licence
+
+This software is licensed under the PolyForm Noncommercial License 1.0.0 - see [LICENSE](LICENSE).
+
+Commercial or business use of this software requires the prior written acknowledgement of Dawn Studio.
