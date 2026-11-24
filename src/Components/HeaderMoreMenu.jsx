@@ -1,5 +1,4 @@
 import {
-  Button,
   Flex,
   Icon,
   IconButton,
@@ -18,7 +17,7 @@ import {
   Switch,
   Text,
 } from '@chakra-ui/react';
-import { BadgeCheck, Check, Coffee, Copy, Ellipsis, LogIn, LogOut, Pencil, Trash2 } from 'lucide-react';
+import { BadgeCheck, Check, Coffee, Copy, Ellipsis, LogIn, LogOut, Pencil, Trash2, X } from 'lucide-react';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { track } from '../libs/analytics';
@@ -196,42 +195,34 @@ const HeaderMoreMenu = () => {
           icon={<Ellipsis size={18} />}
           variant='holdr'
         />
-        <MenuList>
+        <MenuList minW='0'>
           {backend !== false && (user?.id ? (
-            <MenuItem icon={<LogOut size={16} />} onClick={handleLogout}>
-              <Flex w='100%' justify='space-between' align='center' gap={6}>
-                <Text>Sign out</Text>
-                <Text fontSize='xs' color='dimmed' noOfLines={1} maxW='180px'>{user.email}</Text>
-              </Flex>
+            <MenuItem icon={<LogOut size={16} />} onClick={handleLogout} aria-label='Sign out' title='Sign out'>
+              <Text fontSize='xs' color='dimmed' noOfLines={1} maxW='180px'>{user.email}</Text>
             </MenuItem>
           ) : (
-            <MenuItem icon={<LogIn size={16} />} onClick={() => setAuthOpen(true)}>
-              Sign in
-            </MenuItem>
+            <MenuItem icon={<LogIn size={16} />} onClick={() => setAuthOpen(true)} aria-label='Sign in' title='Sign in' />
           ))}
           {backend !== false && <MenuDivider />}
           <MenuItem
             icon={<Pencil size={16} />}
             onClick={toggleEdit}
             closeOnSelect={false}
+            aria-label='Edit mode'
+            title='Edit mode'
+            aria-checked={setting.isEditing}
           >
-            <Flex w='100%' justify='space-between' align='center' gap={6}>
-              <Text>Edit mode</Text>
-              {setting.isEditing && <Check size={16} />}
-            </Flex>
+            {setting.isEditing && <Check size={16} />}
           </MenuItem>
           <MenuItem
-            icon={<Trash2 size={16} />}
+            icon={<Trash2 size={16} color='#f87171' />}
             onClick={() => setConfirmOpen(true)}
             isDisabled={data.length < 1}
-          >
-            <Text color='red.400'>Delete all</Text>
-          </MenuItem>
-          <MenuItem icon={<BadgeCheck size={16} />} onClick={openSponsoredModal}>
-            <Flex w='100%' justify='space-between' align='center' gap={6}>
-              <Text>Supporter</Text>
-              {supporter && <Text title='You are a supporter'>☕</Text>}
-            </Flex>
+            aria-label='Delete all entries'
+            title='Delete all entries'
+          />
+          <MenuItem icon={<BadgeCheck size={16} />} onClick={openSponsoredModal} aria-label='Supporter' title='Supporter'>
+            {supporter && <Text title='You are a supporter'>☕</Text>}
           </MenuItem>
           <MenuDivider />
           <MenuItem
@@ -241,18 +232,18 @@ const HeaderMoreMenu = () => {
             rel='noopener'
             icon={<Coffee size={16} />}
             onClick={() => track('tip_jar_opened', { location: 'more_menu' })}
-          >
-            ☕ Tip jar
-          </MenuItem>
+            aria-label='Tip jar'
+            title='Tip jar'
+          />
           <MenuItem
             as='a'
             href='https://github.com/hectorchanht/clipbin'
             target='_blank'
             rel='noopener noreferrer'
             icon={<GithubIcon boxSize='16px' />}
-          >
-            Source code
-          </MenuItem>
+            aria-label='Source code on GitHub'
+            title='Source code on GitHub'
+          />
         </MenuList>
       </Menu>
 
@@ -266,12 +257,21 @@ const HeaderMoreMenu = () => {
             </Text>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={() => setConfirmOpen(false)}>
-              Cancel
-            </Button>
-            <Button colorScheme='red' ml={3} onClick={handleClearData}>
-              Delete
-            </Button>
+            <IconButton
+              variant='holdr'
+              aria-label='Cancel'
+              title='Cancel'
+              icon={<X size={16} />}
+              onClick={() => setConfirmOpen(false)}
+            />
+            <IconButton
+              colorScheme='red'
+              ml={3}
+              aria-label='Delete all entries'
+              title='Delete all entries'
+              icon={<Trash2 size={16} />}
+              onClick={handleClearData}
+            />
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -334,23 +334,32 @@ const HeaderMoreMenu = () => {
           </ModalBody>
           <ModalFooter>
             {isVerified ? (
-              <Button variant='ghost' onClick={() => setSponsoredOpen(false)}>
-                Done
-              </Button>
+              <IconButton
+                variant='holdr'
+                aria-label='Done'
+                title='Done'
+                icon={<Check size={16} />}
+                onClick={() => setSponsoredOpen(false)}
+              />
             ) : (
               <React.Fragment>
-                <Button variant='ghost' onClick={() => setSponsoredOpen(false)}>
-                  Cancel
-                </Button>
-                <Button
+                <IconButton
+                  variant='holdr'
+                  aria-label='Cancel'
+                  title='Cancel'
+                  icon={<X size={16} />}
+                  onClick={() => setSponsoredOpen(false)}
+                />
+                <IconButton
                   colorScheme='teal'
                   ml={3}
+                  aria-label='Verify license key'
+                  title='Verify license key'
+                  icon={<BadgeCheck size={16} />}
                   onClick={handleVerifyTip}
                   isLoading={verifying}
                   isDisabled={!licenseKey.trim()}
-                >
-                  Verify
-                </Button>
+                />
               </React.Fragment>
             )}
           </ModalFooter>
